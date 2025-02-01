@@ -44,9 +44,10 @@ void generateRooms() {
             room.y = regionY + 1 + rand() % ((MAP_HEIGHT / 2) - room.height - 2);
 
             if (room.x + room.width < MAP_WIDTH && room.y + room.height < MAP_HEIGHT) {
+                // Draw room with borders
                 for (int y = room.y; y < room.y + room.height; y++) {
                     for (int x = room.x; x < room.x + room.width; x++) {
-                        dungeon[f][y][x] = '.';
+                        dungeon[f][y][x] = '.';  // Room interior
                     }
                 }
                 rooms[placedRooms] = room;
@@ -54,7 +55,8 @@ void generateRooms() {
             }
         }
 
-        for (int i = 0; i < 5; i++) {
+        // Draw corridors between rooms
+        for (int i = 0; i < ROOMS - 1; i++) {
             Room room1 = rooms[i];
             Room room2 = rooms[i + 1];
 
@@ -65,28 +67,52 @@ void generateRooms() {
             int centerX2 = room2.x + room2.width / 2;
             int centerY2 = room2.y + room2.height / 2;
 
+            // Horizontal corridor
             if (centerX1 < centerX2) {
                 for (int x = centerX1; x <= centerX2; x++) {
-                    dungeon[f][centerY1][x] = '.';
+                    dungeon[f][centerY1][x] = '.';  // Corridor path
                 }
             } else {
                 for (int x = centerX1; x >= centerX2; x--) {
-                    dungeon[f][centerY1][x] = '.';
+                    dungeon[f][centerY1][x] = '.';  // Corridor path
                 }
             }
 
+            // Vertical corridor
             if (centerY1 < centerY2) {
                 for (int y = centerY1; y <= centerY2; y++) {
-                    dungeon[f][y][centerX2] = '.';
+                    dungeon[f][y][centerX2] = '.';  // Corridor path
                 }
             } else {
                 for (int y = centerY1; y >= centerY2; y--) {
-                    dungeon[f][y][centerX2] = '.';
+                    dungeon[f][y][centerX2] = '.';  // Corridor path
+                }
+            }
+        }
+
+        // Add borders around all '.' characters
+        for (int y = 0; y < MAP_HEIGHT; y++) {
+            for (int x = 0; x < MAP_WIDTH; x++) {
+                if (dungeon[f][y][x] == '.') {
+                    // Check if it's on the edge of the map or adjacent to another space
+                    if (y > 0 && dungeon[f][y - 1][x] != '.') {
+                        dungeon[f][y - 1][x] = '_';  // Top border
+                    }
+                    if (y < MAP_HEIGHT - 1 && dungeon[f][y + 1][x] != '.') {
+                        dungeon[f][y + 1][x] = '_';  // Bottom border
+                    }
+                    if (x > 0 && dungeon[f][y][x - 1] != '.') {
+                        dungeon[f][y][x - 1] = '|';  // Left border
+                    }
+                    if (x < MAP_WIDTH - 1 && dungeon[f][y][x + 1] != '.') {
+                        dungeon[f][y][x + 1] = '|';  // Right border
+                    }
                 }
             }
         }
     }
 }
+
 
 
 void displayFloor(int floor) {

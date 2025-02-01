@@ -2,11 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include "UserFileCreator.h"
+#include "map_plot.h"
+
+#define MAP_HEIGHT 30
+#define MAP_WIDTH 80
+#define FLOORS 4
 
 void writeUserInfo(user_data user) {
     char fileName[256];  // Buffer for the filename
     snprintf(fileName, sizeof(fileName), "%s.txt", user.username);
-
     remove(fileName);
     FILE *file = fopen(fileName, "w");
     if (file == NULL) {
@@ -32,7 +36,6 @@ user_data readUserInfo(user_data user) {
 
     FILE *file = fopen(fileName, "r");  // Change 'a' to 'r' for reading
     if (file == NULL) {
-        perror("Error opening file");
         writeUserInfo(user);
         return user;
     }
@@ -56,37 +59,64 @@ user_data readUserInfo(user_data user) {
     return user;
 }
 
+void loadDungeon(char* username) {
+    char filename[100];
+    snprintf(filename, sizeof(filename), "%sdungeon.txt", username);
 
-// int main() {
-//     user_data user;
+    FILE* file = fopen(filename, "w+");
+    if (file == NULL) {
+        perror("Error opening file");
+        map_generator();
+        return;
+    }
 
-//     // Getting user input
-//     printf("Enter username: ");
-//     fgets(user.username, sizeof(user.username), stdin);
-//     user.username[strcspn(user.username, "\n")] = 0; // Remove newline character
+    char line[MAP_WIDTH + 2];
+    int floor = 0, y = 0;
 
-//     printf("Enter password: ");
-//     fgets(user.password, sizeof(user.password), stdin);
-//     user.password[strcspn(user.password, "\n")] = 0; // Remove newline character
+    while (fgets(line, sizeof(line), file)) {
+        if (strncmp(line, "Floor", 5) == 0) {
+            
+            sscanf(line, "Floor %d:", &floor);
+            floor--;  
+            y = 0;
+        } else if (line[0] != '\n' && y < MAP_HEIGHT) {
+            
+            for (int x = 0; x < MAP_WIDTH && line[x] != '\n' && line[x] != '\0'; x++) {
+                dungeon[floor][y][x] = line[x];
+            }
+            y++;
+        }
+    }
 
-//     printf("Enter log status (0 for logged out, 1 for logged in): ");
-//     scanf("%d", &user.logStatus);
+    fclose(file);
+    printw("Dungeon loaded from %s\n", filename);
+    return;
+}
 
-//     printf("Enter score: ");
-//     scanf("%d", &user.score);
+void saveDungeon(char* username) {
+    char filename[100];
+    snprintf(filename, sizeof(filename), "%sdungeon.txt", username);
 
-//     printf("Enter gold: ");
-//     scanf("%d", &user.gold);
+    remove(filename);
 
-//     printf("Enter number of games played: ");
-//     scanf("%d", &user.count_games);
+    FILE* file = fopen(filename, "w");
+    if (file == NULL) {
+        perror("Error opening file");
+        return;
+    }
 
-//     printf("Enter experience points: ");
-//     scanf("%d", &user.experience);
+    for (int f = 0; f < FLOORS; f++) {
+        fprintf(file, "Floor %d:\n", f + 1);
+        for (int y = 0; y < MAP_HEIGHT; y++) {
+            for (int x = 0; x < MAP_WIDTH; x++) {
+                fprintf(file, "%c", dungeon[f][y][x]);
+            }
+            fprintf(file, "\n");
+        }
+        fprintf(file, "\n");
+    }
 
-//     writeUserInfo(user);
+    fclose(file);
+    printw("Dungeon saved to %s\n", filename);
+}
 
-//     printf("User information saved successfully.\n");
-
-//     return 0;
-// }

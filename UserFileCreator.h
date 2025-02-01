@@ -11,7 +11,17 @@ typedef struct {
     int experience;
 } user_data;
 
+typedef struct {
+    int health;
+    int floor;
+    int x;
+    int y;
+    char heroSymbol;
+} hero;
+
 void writeUserInfo(user_data user);
 user_data readUserInfo(user_data user);
+void loadDungeon(char* username);
+void saveDungeon(char* username);
 
 #endif // UserFileCreator_H
