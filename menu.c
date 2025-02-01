@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
+#include <wchar.h>
 #include "menu.h"
 
 // Function declarations
@@ -13,6 +15,7 @@ void create_account();
 void guest_mode();
 void login();
 int menu();
+int bunny();
 
 char usernameext[50] = "";
 char passwordext[50] = "";
@@ -34,6 +37,7 @@ void screen_setup() {
 
 int menu() {
     screen_setup();
+    curs_set(false);
     
     const char *options[] = {"Log in", "Create account", "Guest mode", "Exit"};
     int n_options = sizeof(options) / sizeof(options[0]);
@@ -42,6 +46,9 @@ int menu() {
 
     while (1) {
         clear();
+        
+        bunny();
+
         for (int i = 0; i < n_options; i++) {
             if (i == highlight) {
                 attron(A_REVERSE); // Highlight the current option
@@ -283,3 +290,28 @@ int NewGameChoices() {
     endwin(); // Exit ncurses mode
     return 0;
 }
+
+int bunny() {
+    //for (int i = 0; i < 10; i++) {
+        srand(time(NULL));
+
+        char *bunny[] = {
+            " /\\_/\\",
+            "(^ - ^)",
+            "(    <3",
+            "  = = "
+        };
+        int bunny_height = 4;
+        int bunny_width = 9;
+
+        int max_y = 30 - bunny_height;
+        int max_x = 80 - bunny_width;
+        int v = 8 + rand() % max_y;
+        int b = 8 + rand() % max_x;
+
+        for (int i = 0; i < bunny_height; i++) {
+            mvprintw(v + i, b, "%s\n", bunny[i]);
+        }
+    //}
+}
+

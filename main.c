@@ -15,13 +15,13 @@ hero createHero() {
     hero newHero;
     newHero.floor = 0;
     newHero.health = MAX_HEALTH;
-    newHero.heroSymbol = '\u2764';
+    newHero.heroSymbol = '0';
 
     srand(time(NULL));
 
     while (1) {
-        int randomX = rand() % MAP_WIDTH;
-        int randomY = rand() % MAP_HEIGHT;
+        int randomX = rand() % MAP_WIDTH/3;
+        int randomY = rand() % MAP_HEIGHT/2;
 
         if (dungeon[newHero.floor][randomY][randomX] == '.') {
             newHero.x = randomX;
@@ -32,7 +32,7 @@ hero createHero() {
 
     return newHero;
 }
-
+hero myhero;
 
 user_data newPlayerCreation (char username[], char password[]) {
     user_data newplayer;
@@ -67,6 +67,7 @@ user_data setupLogin() {
             newuser = readUserInfo(newuser);
             newuser.logStatus = 1;
             map_generator();
+            myhero = createHero();
         }
     }
     else if (menu_value == 1) {
@@ -75,11 +76,10 @@ user_data setupLogin() {
     else if (menu_value == 2) {
         newuser = newPlayerCreation("Guest", "Guest");
         map_generator();
+        myhero = createHero();
     }
     return newuser;
 }
-
-hero myhero;
 
 void renderGame() {
     initscr();
@@ -122,8 +122,8 @@ void movementHandler(int j, int i) {
 int main() {
     user_data player = setupLogin();
     if (player.logStatus == -1) {
-        return 0;
         endwin();
+        return 0;
     }
 
     renderGame();

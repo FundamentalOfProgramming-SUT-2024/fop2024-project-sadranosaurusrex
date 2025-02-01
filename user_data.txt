@@ -7,3 +7,6 @@ Password: 12345Six
 Username: Guest
 Email: NULL
 Password: Guest
+Username: guest
+Email: guest@gmail.com
+Password: Guest123

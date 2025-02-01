@@ -3,6 +3,7 @@
 
 int menu();
 int NewGameChoices();
+int bunny();
 
 extern char usernameext[50];
 extern char passwordext[50];
