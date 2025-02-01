@@ -14,9 +14,8 @@ void guest_mode();
 void login();
 int menu();
 
-char usernameext[100] = "";
-char passwordext[100] = "";
-char emailext[100] = "";
+char usernameext[50] = "";
+char passwordext[50] = "";
 
 // Screen setup
 void screen_setup() {
@@ -84,8 +83,8 @@ int menu() {
 
 void login() {
     clear();
-    char username[100] = "";
-    char password[100] = "";
+    char username[50] = "";
+    char password[50] = "";
 
     echo();
     mvprintw(0, 0, "Please enter your username: ");
@@ -204,9 +203,9 @@ int taken_username(char* username) {
         return 0; // File not found
     }
 
-    char file_username[100];
+    char file_username[50];
     char file_email[100];
-    char file_password[100];
+    char file_password[50];
 
     while (fscanf(file, "Username: %99s\nEmail: %99s\nPassword: %99s\n", file_username, file_email, file_password) == 3) {
         if (strcmp(file_username, username) == 0) {
@@ -224,9 +223,9 @@ int authenticate_user(const char *username, const char *password) {
         return 0; // File not found
     }
 
-    char file_username[100];
+    char file_username[50];
     char file_email[100];
-    char file_password[100];
+    char file_password[50];
 
     while (fscanf(file, "Username: %99s\nEmail: %99s\nPassword: %99s\n", file_username, file_email, file_password) == 3) {
         if (strcmp(file_username, username) == 0 && strcmp(file_password, password) == 0) {
@@ -237,4 +236,50 @@ int authenticate_user(const char *username, const char *password) {
 
     fclose(file);
     return 0; // Authentication failed
+}
+
+int NewGameChoices() {
+    initscr();                
+    keypad(stdscr, TRUE);     
+    noecho();                 
+    cbreak();                 
+
+    int choice = -1;
+    int highlight = 0;
+    const char *options[] = { "Continue", "NewGame", "Back" };
+    int n_options = sizeof(options) / sizeof(options[0]);
+
+    while (1) {
+        clear();
+        for (int i = 0; i < n_options; i++) {
+            if (i == highlight) {
+                attron(A_REVERSE); // Highlight the current option
+            }
+            mvprintw(i, 0, options[i]); // Print option
+
+            if (i == highlight) {
+                attroff(A_REVERSE); // Turn off highlight
+            }
+        }
+
+        int key = getch();
+        switch (key) {
+            case KEY_UP:
+                highlight = (highlight - 1 + n_options) % n_options; // Move up
+                break;
+            case KEY_DOWN:
+                highlight = (highlight + 1) % n_options; // Move down
+                break;
+            case 10: // Enter key
+                choice = highlight;
+                break;
+        }
+
+        if (choice < n_options && choice > -1) { // Exit option
+            return choice;
+        }
+    }
+
+    endwin(); // Exit ncurses mode
+    return 0;
 }

@@ -1,11 +1,11 @@
 #include <ncurses.h>
-//#include <stdio.h>
 
-int main() {
-    NewGameChoices();
-    endwin();
-    return 0;
-}
+
+// int main() {
+//     NewGameChoices();
+//     endwin();
+//     return 0;
+// }
 
 int NewGameChoices() {
     initscr();                

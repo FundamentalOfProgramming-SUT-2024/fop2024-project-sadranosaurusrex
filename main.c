@@ -4,19 +4,10 @@
 #include <time.h>
 #include "map_plot.h"
 #include "menu.h"
+#include "UserFileCreator.h"
 
-#define MAP_HEIGHT 40
+#define MAP_HEIGHT 30
 #define MAP_WIDTH 80
-
-typedef struct {
-    char username[40];
-    char password[40];
-    int logStatus;
-    int score;
-    int gold;
-    int count_games;
-    int experience;
-} user_data;
 
 user_data newPlayerCreation (char username[], char password[]) {
     user_data newplayer;
@@ -36,7 +27,21 @@ user_data setupLogin() {
         newuser.logStatus = -1;
         return newuser;
     }
-    else if (menu_value == 1 || menu_value == 0) {
+    else if (menu_value == 0) {
+        newuser = newPlayerCreation(usernameext, passwordext);
+        int choice = NewGameChoices();
+        if (choice == 0) {
+            // userfile will be read
+            newuser = newPlayerCreation(usernameext, passwordext);
+            writeUserInfo(newuser);
+            newuser.logStatus = 1;
+        }
+        else if (choice == 1) {
+            //userfile will be deleted and created again
+            newuser = readUserInfo(newuser);
+        }
+    }
+    else if (menu_value == 1) {
         newuser = newPlayerCreation(usernameext, passwordext);
     }
     else if (menu_value == 2) {
@@ -66,7 +71,10 @@ void renderGame() {
 
 int main() {
     user_data player = setupLogin();
-    if (player.logStatus == -1) return 0;
+    if (player.logStatus == -1) {
+        return 0;
+        endwin();
+    }
     map_generator();
     renderGame();
     return 0;

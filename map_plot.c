@@ -2,10 +2,10 @@
 #include <ncurses.h>
 #include <stdlib.h>
 #include <time.h>
-#include "map_plot.h"  // Include the header file
+#include "map_plot.h"
 
 #define FLOORS 4
-#define MAP_HEIGHT 40
+#define MAP_HEIGHT 30
 #define MAP_WIDTH 80
 #define ROOMS 6
 
@@ -19,7 +19,7 @@ void initializeDungeon() {
     for (int f = 0; f < FLOORS; f++) {
         for (int y = 0; y < MAP_HEIGHT; y++) {
             for (int x = 0; x < MAP_WIDTH; x++) {
-                dungeon[f][y][x] = '#';
+                dungeon[f][y][x] = ' ';
             }
         }
     }
@@ -57,6 +57,8 @@ void generateRooms() {
         for (int i = 0; i < 5; i++) {
             Room room1 = rooms[i];
             Room room2 = rooms[i + 1];
+
+            if (i == 2) room2 = rooms[5];
 
             int centerX1 = room1.x + room1.width / 2;
             int centerY1 = room1.y + room1.height / 2;

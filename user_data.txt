@@ -4,3 +4,6 @@ Password: 12345Six
 Username: ali
 Email: slsdfjkladf@fskf.sds
 Password: 12345Six
+Username: Guest
+Email: NULL
+Password: Guest

@@ -2,7 +2,7 @@
 #define MAP_PLOT_H
 
 #define FLOORS 4
-#define MAP_HEIGHT 40
+#define MAP_HEIGHT 30
 #define MAP_WIDTH 80
 
 extern char dungeon[FLOORS][MAP_HEIGHT][MAP_WIDTH];
