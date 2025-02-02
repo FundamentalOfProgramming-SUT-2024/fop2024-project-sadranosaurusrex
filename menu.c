@@ -13,7 +13,7 @@ int valid_email(const char *str);
 int authenticate_user(const char *username, const char *password);
 void create_account();
 void guest_mode();
-void login();
+int login();
 int menu();
 int bunny();
 
@@ -73,8 +73,7 @@ int menu() {
         }
 
         if (choice == 0) {
-            login();
-            return 0;
+            return login();
         } else if (choice == 1) {
             create_account();
             return 1;
@@ -88,7 +87,7 @@ int menu() {
     }
 }
 
-void login() {
+int login() {
     clear();
     char username[50] = "";
     char password[50] = "";
@@ -104,6 +103,9 @@ void login() {
         mvprintw(3, 0, "Login successful! Welcome, %s!", username);
     } else {
         mvprintw(3, 0, "Invalid username or password.");
+        mvprintw(5, 0, "Press any key to continue. ");
+        getch();
+        return -1;
     }
 
     strcpy(usernameext, username);
@@ -111,6 +113,7 @@ void login() {
 
     mvprintw(5, 0, "Press any key to continue. ");
     getch();
+    return 0;
 }
 
 void create_account() {
@@ -315,3 +318,48 @@ int bunny() {
     //}
 }
 
+void settingMenu() {
+    initscr();                
+    keypad(stdscr, TRUE);     
+    noecho();                 
+    cbreak();                 
+
+    int choice = -1;
+    int highlight = 0;
+    const char *options[] = { "Food", "Weapons", "Score Board", "Back" };
+    int n_options = sizeof(options) / sizeof(options[0]);
+
+    while (1) {
+        clear();
+        for (int i = 0; i < n_options; i++) {
+            if (i == highlight) {
+                attron(A_REVERSE); // Highlight the current option
+            }
+            mvprintw(i, 0, options[i]); // Print option
+
+            if (i == highlight) {
+                attroff(A_REVERSE); // Turn off highlight
+            }
+        }
+
+        int key = getch();
+        switch (key) {
+            case KEY_UP:
+                highlight = (highlight - 1 + n_options) % n_options; // Move up
+                break;
+            case KEY_DOWN:
+                highlight = (highlight + 1) % n_options; // Move down
+                break;
+            case 10: // Enter key
+                choice = highlight;
+                break;
+        }
+
+        if (choice < n_options && choice > -1) { // Exit option
+            return choice;
+        }
+    }
+
+    endwin();
+    return 0;
+}

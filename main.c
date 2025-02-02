@@ -49,6 +49,7 @@ user_data newPlayerCreation (char username[], char password[]) {
 user_data setupLogin() {
     user_data newuser;
     int menu_value = menu();
+    while (menu_value == -1) menu_value = menu();
     if (menu_value == 3) {
         newuser.logStatus = -1;
         return newuser;
@@ -92,6 +93,41 @@ void onlySomeFeet (int feet, int floor) {
     movementHandler(0, 0);
 }
 
+int U() {
+    myhero.floor++;
+    srand(time(NULL));
+
+    while (1) {
+        int randomX = rand() % MAP_WIDTH/3;
+        int randomY = rand() % MAP_HEIGHT/2;
+
+        if (dungeon[myhero.floor][randomY][randomX] == '.') {
+            myhero.x = randomX;
+            myhero.y = randomY;
+            break;
+        }
+    }
+    return myhero.floor;
+}
+
+int D() {
+    myhero.floor--;
+    srand(time(NULL));
+
+    while (1) {
+        int randomX = rand() % MAP_WIDTH/3;
+        int randomY = MAP_HEIGHT -rand() % MAP_HEIGHT/2;
+
+        if (dungeon[myhero.floor][randomY][randomX] == '.') {
+            myhero.x = randomX;
+            myhero.y = randomY;
+            break;
+        }
+    }
+    return myhero.floor;
+}
+
+
 void renderGame() {
     initscr();
     noecho();
@@ -107,6 +143,13 @@ void renderGame() {
         if (myhero.floor == currentFloor) movementHandler(0, 0);
         else mvprintw(myhero.y, myhero.x, "%c", dungeon[currentFloor][myhero.y][myhero.x]);
         
+        if (dungeon[currentFloor][myhero.y][myhero.x] == 'U') {
+            currentFloor = U();
+        }
+        else if (dungeon[currentFloor][myhero.y][myhero.x] == 'D') {
+            currentFloor = D();
+        }
+        
         int ch = getch();
         if (ch == 'y') movementHandler(-1, -1);
         else if (ch == 'u') movementHandler(-1, 1);
@@ -120,7 +163,9 @@ void renderGame() {
         else if (ch == 'w' && currentFloor > 0) currentFloor--;
         else if (ch == 's' && currentFloor < FLOORS - 1) currentFloor++;
         else if (ch == 'a') displayStatus *= -1;
-        else if (ch == 'z') ;
+        else if (ch == 'p') {
+            settingMenu();
+        }
     }
 
     endwin();
@@ -130,10 +175,12 @@ void movementHandler(int j, int i) {
     bunny();
     int desx = myhero.x +i;
     int desy = myhero.y +j;
-    if (desx < 1 || desy < 1 || desx > MAP_WIDTH || desy > MAP_HEIGHT || dungeon[myhero.floor][desy][desx] != '.') return;
+    if (desx < 1 || desy < 1 || desx > MAP_WIDTH || desy > MAP_HEIGHT 
+        || dungeon[myhero.floor][desy][desx] == '|' || dungeon[myhero.floor][desy][desx] == '_') return;
+    else 
     myhero.x += i;
     myhero.y += j;
-    mvprintw(myhero.y, myhero.x, "%c", myhero.heroSymbol);
+    attron(A_REVERSE); mvprintw(myhero.y, myhero.x, "%c", myhero.heroSymbol); attroff(A_REVERSE);
     return;
 }
 
@@ -150,7 +197,7 @@ int main() {
     writeUserInfo(player);
     saveDungeon(player.username);
 
-    printf("Press any key to exit. \n");
+    printf("Press Enter to exit. \n");
     getchar();
     return 0;
 }
