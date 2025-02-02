@@ -9,7 +9,7 @@
 
 #define MAP_HEIGHT 30
 #define MAP_WIDTH 80
-#define MAX_HEALTH 100;
+#define MAX_HEALTH 100
 
 hero createHero() {
     hero newHero;
@@ -81,16 +81,31 @@ user_data setupLogin() {
     return newuser;
 }
 
+void onlySomeFeet (int feet, int floor) {
+    clear();
+    for (int i = myhero.x -feet; i <= myhero.x +feet; i++) {
+        for (int j = myhero.y -feet; j <= myhero.y +feet; j++) {
+            if (i > 0 && i <= MAP_HEIGHT *3 && j > 0 && j <= MAP_WIDTH*2) 
+                mvprintw(j, i, "%c", dungeon[floor][j][i]);
+        }
+    }
+    movementHandler(0, 0);
+}
+
 void renderGame() {
     initscr();
     noecho();
     curs_set(FALSE);
 
     int currentFloor = myhero.floor;
+    int displayStatus = 1;
 
     while (1) {
-        displayFloor(currentFloor);
-        movementHandler(0, 0);
+        if (displayStatus == 1) displayFloor(currentFloor);
+        else onlySomeFeet(5, currentFloor);
+        bunny();
+        if (myhero.floor == currentFloor) movementHandler(0, 0);
+        else mvprintw(myhero.y, myhero.x, "%c", dungeon[currentFloor][myhero.y][myhero.x]);
         
         int ch = getch();
         if (ch == 'y') movementHandler(-1, -1);
@@ -104,12 +119,15 @@ void renderGame() {
         else if (ch == 'q') break;
         else if (ch == 'w' && currentFloor > 0) currentFloor--;
         else if (ch == 's' && currentFloor < FLOORS - 1) currentFloor++;
+        else if (ch == 'a') displayStatus *= -1;
+        else if (ch == 'z') ;
     }
 
     endwin();
 }
 
 void movementHandler(int j, int i) {
+    bunny();
     int desx = myhero.x +i;
     int desy = myhero.y +j;
     if (desx < 1 || desy < 1 || desx > MAP_WIDTH || desy > MAP_HEIGHT || dungeon[myhero.floor][desy][desx] != '.') return;
