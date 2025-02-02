@@ -25,6 +25,7 @@ void writeUserInfo(user_data user) {
     fprintf(file, "%d\n", user.gold);
     fprintf(file, "%d\n", user.count_games);
     fprintf(file, "%d\n", user.experience);
+    fprintf(file, "%d\n", user.rank);
     fprintf(file, "---------------------------\n");
 
     fclose(file);
@@ -42,7 +43,7 @@ user_data readUserInfo(user_data user) {
 
     char line[10][256];
     int index = 0;
-    while (fgets(line[index], sizeof(line[index]), file) && index < 7) {
+    while (fgets(line[index], sizeof(line[index]), file) && index < 8) {
         line[index][strcspn(line[index], "\n")] = 0; // Remove newline character
         index++;
     }
@@ -54,6 +55,7 @@ user_data readUserInfo(user_data user) {
     user.gold = atoi(line[4]);
     user.count_games = atoi(line[5]);
     user.experience = atoi(line[6]);
+    user.rank = atoi(line[7]);
 
     fclose(file);
     return user;
@@ -63,9 +65,9 @@ void loadDungeon(char* username) {
     char filename[100];
     snprintf(filename, sizeof(filename), "%sdungeon.txt", username);
 
-    FILE* file = fopen(filename, "w+");
+    FILE* file = fopen(filename, "r");
     if (file == NULL) {
-        perror("Error opening file");
+        //perror("Error opening file");
         map_generator();
         return;
     }
@@ -101,7 +103,7 @@ void saveDungeon(char* username) {
 
     FILE* file = fopen(filename, "w");
     if (file == NULL) {
-        perror("Error opening file");
+        //perror("Error opening file");
         return;
     }
 
@@ -120,3 +122,45 @@ void saveDungeon(char* username) {
     printw("Dungeon saved to %s\n", filename);
 }
 
+void boardSaver(char** board) {
+    char filename[] = "ScoreBoard.txt";
+
+    remove(filename);
+
+    FILE* file = fopen(filename, "w");
+    if (file == NULL) {
+        perror("Error opening file");
+        return;
+    }
+
+    for (int i = 0; board[i][0] != '\0'; i++) {
+        fprintf(file, "%s\n", board[i]);
+    }
+    
+    fclose(file);
+    printw("Board saved to %s\n", filename);
+}
+
+char** loadBoard() {
+    char board[256][50];
+    char filename[100] = "ScoreBoard.txt";
+
+    FILE* file = fopen(filename, "r");
+    if (file == NULL) {
+        perror("Error opening file");
+        map_generator();
+        return;
+    }
+
+    char line[50];
+    int i = 0;
+    while (fgets(line, sizeof(line), file)) {
+        if (line[strlen(line) -1] == '\n') line[strlen(line) -1] = '\0';
+        strcpy(board[i], line);
+    }
+
+    fclose(file);
+    printw("Board loaded from %s\n", filename);
+    return;
+    return board;
+}

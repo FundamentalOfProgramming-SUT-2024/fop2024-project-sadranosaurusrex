@@ -4,6 +4,7 @@
 int menu();
 int NewGameChoices();
 int bunny();
+void boardDisplayer(char** board);
 
 extern char usernameext[50];
 extern char passwordext[50];

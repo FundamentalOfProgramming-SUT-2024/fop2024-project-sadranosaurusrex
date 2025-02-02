@@ -9,6 +9,7 @@ typedef struct {
     int gold;
     int count_games;
     int experience;
+    int rank;
 } user_data;
 
 typedef struct {
@@ -17,11 +18,14 @@ typedef struct {
     int x;
     int y;
     char heroSymbol;
+    user_data user;
 } hero;
 
 void writeUserInfo(user_data user);
 user_data readUserInfo(user_data user);
 void loadDungeon(char* username);
 void saveDungeon(char* username);
+char** loadBoard();
+void boardSaver(char** board);
 
 #endif // UserFileCreator_H

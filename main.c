@@ -6,6 +6,7 @@
 #include "map_plot.h"
 #include "menu.h"
 #include "UserFileCreator.h"
+#include "main.h"
 
 #define MAP_HEIGHT 30
 #define MAP_WIDTH 80
@@ -32,6 +33,14 @@ hero createHero() {
 
     return newHero;
 }
+
+user_data userFinder(char* username) {
+    user_data user;
+    strcpy(user.username, username);
+    user = readUserInfo(user);
+    return user;
+} 
+
 hero myhero;
 
 user_data newPlayerCreation (char username[], char password[]) {
@@ -127,6 +136,75 @@ int D() {
     return myhero.floor;
 }
 
+char** rerank() {
+    char** board = loadBoard();
+    
+    char users[256][50];
+    int scores[256];
+    int i = 0;
+    while (board[i][0] != '\0') {
+        char* token1 = strtok(board[i], ".");
+        char* token2 = strtok(NULL, ":");
+        char* token3 = strtok(NULL, "\0");
+        if (!strcmp(myhero.user.username, token2)) {
+            token3 = myhero.user.score;
+        }
+        strcpy(users[i], token2);
+        scores[i] = token3;
+        i++;
+    }
+    for (int j = 0; j < i; j++) {
+        for (int k = j +1; k < i; k++) {
+            if (scores[j] < scores[k]) {
+                int temp = scores[j];
+                scores[j] = scores[k];
+                scores[k] = temp;
+
+                char tempstr[] = users[j];
+                strcpy(users[j], users[k]);
+                strcpy(users[k], tempstr);
+            }
+        }
+    }
+    
+    for (int j = 0; j < i; j++) {
+        snprintf(board[j], sizeof(board[j]), "%d.%s:%d", j +1, users[j], scores[j]);
+    }
+
+    return board;
+}
+
+void weapons() {
+
+}
+
+
+void options(int choice) {
+    switch (choice)
+    {
+    case 0:
+        return;
+    
+    case 1:
+        weapons();
+        break;
+
+    case 2: {
+        char** board = rerank();
+        boardDisplayer(board);
+        boardSaver(board);
+        break;
+    }
+    case 3: {
+        char** board = rerank();
+        boardSaver(board);
+        break;
+    }
+
+    default:
+        break;
+    }
+}
 
 void renderGame() {
     initscr();
@@ -160,11 +238,11 @@ void renderGame() {
         else if (ch == 'b') movementHandler(1, -1);
         else if (ch == 'n') movementHandler(1, 1);
         else if (ch == 'q') break;
-        else if (ch == 'w' && currentFloor > 0) currentFloor--;
-        else if (ch == 's' && currentFloor < FLOORS - 1) currentFloor++;
+        else if (ch == 's' && currentFloor > 0) currentFloor--;
+        else if (ch == 'w' && currentFloor < FLOORS - 1) currentFloor++;
         else if (ch == 'a') displayStatus *= -1;
         else if (ch == 'p') {
-            settingMenu();
+            options(settingMenu());
         }
     }
 
@@ -186,6 +264,7 @@ void movementHandler(int j, int i) {
 
 int main() {
     user_data player = setupLogin();
+    myhero.user = player;
     if (player.logStatus == -1) {
         endwin();
         return 0;

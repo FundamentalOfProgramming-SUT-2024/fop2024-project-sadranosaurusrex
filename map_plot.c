@@ -153,7 +153,6 @@ void generateRooms()
             }
         }
 
-        srand(time(NULL));
         while (f != 0) {
             int randomX = rand() % (MAP_WIDTH / 3);
             int randomY = rand() % (MAP_HEIGHT / 2);
@@ -162,6 +161,17 @@ void generateRooms()
             {
                 dungeon[f][randomY][randomX] = 'D';
 
+                break;
+            }
+        }
+        
+        while (f == FLOORS -1) {
+            int randomX = rand() % (MAP_WIDTH / 3);
+            int randomY = MAP_HEIGHT -rand() % (MAP_HEIGHT / 2);
+
+            if (dungeon[f][randomY][randomX] == '|' || dungeon[f][randomY][randomX] == '_')
+            {
+                dungeon[f][randomY][randomX] = 'W';
                 break;
             }
         }

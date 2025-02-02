@@ -6,6 +6,8 @@
 #include <time.h>
 #include <wchar.h>
 #include "menu.h"
+#include "UserFileCreator.h"
+#include "main.h"
 
 // Function declarations
 int valid_password(const char *password);
@@ -256,7 +258,7 @@ int NewGameChoices() {
 
     int choice = -1;
     int highlight = 0;
-    const char *options[] = { "Continue", "NewGame", "Back" };
+    const char *options[] = { "Continue", "NewGame", "Score Board", "Back" };
     int n_options = sizeof(options) / sizeof(options[0]);
 
     while (1) {
@@ -310,7 +312,7 @@ int bunny() {
         int max_y = 30 - bunny_height;
         int max_x = 80 - bunny_width;
         int v = 8 + rand() % max_y;
-        int b = 8 + rand() % max_x;
+        int b = 80 + rand() % max_x;
 
         for (int i = 0; i < bunny_height; i++) {
             mvprintw(v + i, b, "%s\n", bunny[i]);
@@ -326,7 +328,7 @@ void settingMenu() {
 
     int choice = -1;
     int highlight = 0;
-    const char *options[] = { "Food", "Weapons", "Score Board", "Back" };
+    const char *options[] = { "Food", "Weapons", "Score Board", "Save", "Back" };
     int n_options = sizeof(options) / sizeof(options[0]);
 
     while (1) {
@@ -362,4 +364,8 @@ void settingMenu() {
 
     endwin();
     return 0;
+}
+
+void boardDisplayer(char** board) {
+    
 }
