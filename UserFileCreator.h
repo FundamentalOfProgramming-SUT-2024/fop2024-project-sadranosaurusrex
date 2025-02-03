@@ -21,11 +21,13 @@ typedef struct {
     user_data user;
 } hero;
 
+extern char board[256][50];
+
 void writeUserInfo(user_data user);
 user_data readUserInfo(user_data user);
 void loadDungeon(char* username);
 void saveDungeon(char* username);
-char** loadBoard();
-void boardSaver(char** board);
+void loadBoard();
+void boardSaver();
 
 #endif // UserFileCreator_H

@@ -55,7 +55,7 @@ int menu() {
             if (i == highlight) {
                 attron(A_REVERSE); // Highlight the current option
             }
-            mvprintw(i, 0, options[i]); // Print option
+            mvprintw(i, 0, "%s",options[i]); // Print option
             if (i == highlight) {
                 attroff(A_REVERSE); // Turn off highlight
             }
@@ -267,7 +267,7 @@ int NewGameChoices() {
             if (i == highlight) {
                 attron(A_REVERSE); // Highlight the current option
             }
-            mvprintw(i, 0, options[i]); // Print option
+            mvprintw(i, 0, "%s", options[i]); // Print option
 
             if (i == highlight) {
                 attroff(A_REVERSE); // Turn off highlight
@@ -320,7 +320,7 @@ int bunny() {
     //}
 }
 
-void settingMenu() {
+int settingMenu() {
     initscr();                
     keypad(stdscr, TRUE);     
     noecho();                 
@@ -337,7 +337,7 @@ void settingMenu() {
             if (i == highlight) {
                 attron(A_REVERSE); // Highlight the current option
             }
-            mvprintw(i, 0, options[i]); // Print option
+            mvprintw(i, 0, "%s", options[i]); // Print option
 
             if (i == highlight) {
                 attroff(A_REVERSE); // Turn off highlight
@@ -354,6 +354,8 @@ void settingMenu() {
                 break;
             case 10: // Enter key
                 choice = highlight;
+                printw("Chose\n");
+                getchar();
                 break;
         }
 
@@ -366,6 +368,6 @@ void settingMenu() {
     return 0;
 }
 
-void boardDisplayer(char** board) {
+void boardDisplayer() {
     
 }

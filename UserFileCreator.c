@@ -8,6 +8,8 @@
 #define MAP_WIDTH 80
 #define FLOORS 4
 
+char board[256][50];
+
 void writeUserInfo(user_data user) {
     char fileName[256];  // Buffer for the filename
     snprintf(fileName, sizeof(fileName), "%s.txt", user.username);
@@ -122,7 +124,7 @@ void saveDungeon(char* username) {
     printw("Dungeon saved to %s\n", filename);
 }
 
-void boardSaver(char** board) {
+void boardSaver() {
     char filename[] = "ScoreBoard.txt";
 
     remove(filename);
@@ -133,23 +135,26 @@ void boardSaver(char** board) {
         return;
     }
 
+    int lastIndex;
     for (int i = 0; board[i][0] != '\0'; i++) {
         fprintf(file, "%s\n", board[i]);
+        lastIndex = i;
     }
+    //fprintf(file, "%s\n", board[lastIndex]);
     
     fclose(file);
     printw("Board saved to %s\n", filename);
 }
 
-char** loadBoard() {
-    char board[256][50];
+void loadBoard() {
     char filename[100] = "ScoreBoard.txt";
 
     FILE* file = fopen(filename, "r");
     if (file == NULL) {
-        perror("Error opening file");
-        map_generator();
-        return;
+        perror("Error opening file score");
+        board[0][0] = '\0';
+        boardSaver();
+        return board;
     }
 
     char line[50];
@@ -157,10 +162,11 @@ char** loadBoard() {
     while (fgets(line, sizeof(line), file)) {
         if (line[strlen(line) -1] == '\n') line[strlen(line) -1] = '\0';
         strcpy(board[i], line);
+        i++;
     }
+    board[i][0] = '\0';
 
     fclose(file);
     printw("Board loaded from %s\n", filename);
     return;
-    return board;
 }

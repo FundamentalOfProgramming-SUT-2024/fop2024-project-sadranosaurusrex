@@ -136,23 +136,33 @@ int D() {
     return myhero.floor;
 }
 
-char** rerank() {
-    char** board = loadBoard();
+void rerank() {
+    printf("first on board: %s", board[0]);
+    getchar();
     
     char users[256][50];
     int scores[256];
     int i = 0;
+    int existance = 0;
     while (board[i][0] != '\0') {
-        char* token1 = strtok(board[i], ".");
-        char* token2 = strtok(NULL, ":");
-        char* token3 = strtok(NULL, "\0");
+        char* token2 = strtok(board[i] +2, ":");
+        int token3 = atoi(strtok(NULL, "\0"));
         if (!strcmp(myhero.user.username, token2)) {
             token3 = myhero.user.score;
+            existance = 1;
         }
         strcpy(users[i], token2);
         scores[i] = token3;
         i++;
     }
+
+    if (!existance) {
+        i++;
+        snprintf(board[i], sizeof(board[i]), "%d.%s:%d", i +1, myhero.user.username, myhero.user.score);
+        strcpy(users[i], myhero.user.username);
+        scores[i] = myhero.user.score;
+    }
+
     for (int j = 0; j < i; j++) {
         for (int k = j +1; k < i; k++) {
             if (scores[j] < scores[k]) {
@@ -160,7 +170,8 @@ char** rerank() {
                 scores[j] = scores[k];
                 scores[k] = temp;
 
-                char tempstr[] = users[j];
+                char tempstr[50]; 
+                strcpy(tempstr, users[j]);
                 strcpy(users[j], users[k]);
                 strcpy(users[k], tempstr);
             }
@@ -190,14 +201,14 @@ void options(int choice) {
         break;
 
     case 2: {
-        char** board = rerank();
-        boardDisplayer(board);
-        boardSaver(board);
+        rerank();
+        boardDisplayer();
+        boardSaver();
         break;
     }
     case 3: {
-        char** board = rerank();
-        boardSaver(board);
+        rerank();
+        boardSaver();
         break;
     }
 
