@@ -40,7 +40,7 @@ user_data readUserInfo(user_data user) {
     FILE *file = fopen(fileName, "r");  // Change 'a' to 'r' for reading
     if (file == NULL) {
         writeUserInfo(user);
-        return user;
+        return readUserInfo(user);
     }
 
     char line[10][256];
@@ -164,7 +164,7 @@ void loadBoard() {
         strcpy(board[i], line);
         i++;
     }
-    board[i][0] = '\0';
+    board[i +1][0] = '\0';
 
     fclose(file);
     printw("Board loaded from %s\n", filename);

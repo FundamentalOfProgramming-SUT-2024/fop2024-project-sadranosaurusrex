@@ -1,3 +1,4 @@
+#include <math.h>
 #include <ncurses.h>
 #include <stdlib.h>
 #include <string.h>
@@ -68,13 +69,15 @@ user_data setupLogin() {
         if (choice == 0) {
             // userfile will be read
             newuser = newPlayerCreation(usernameext, passwordext);
+            newuser = readUserInfo(newuser);
             writeUserInfo(newuser);
             newuser.logStatus = 1;
             loadDungeon(newuser.username);
+            myhero = createHero();
         }
         else if (choice == 1) {
             //userfile will be deleted and created again
-            newuser = readUserInfo(newuser);
+            newuser = newPlayerCreation(usernameext, passwordext);
             newuser.logStatus = 1;
             map_generator();
             myhero = createHero();
@@ -136,31 +139,34 @@ int D() {
     return myhero.floor;
 }
 
-void rerank() {
-    printf("first on board: %s", board[0]);
-    getchar();
-    
+void rerank() {    
     char users[256][50];
     int scores[256];
     int i = 0;
     int existance = 0;
+    
     while (board[i][0] != '\0') {
-        char* token2 = strtok(board[i] +2, ":");
+        char* token1 = strtok(board[i], ".");
+        char* token2 = strtok(NULL, ":");
         int token3 = atoi(strtok(NULL, "\0"));
+
         if (!strcmp(myhero.user.username, token2)) {
             token3 = myhero.user.score;
             existance = 1;
+            myhero.user.rank = atoi(token1);
         }
+
         strcpy(users[i], token2);
         scores[i] = token3;
         i++;
     }
 
     if (!existance) {
-        i++;
         snprintf(board[i], sizeof(board[i]), "%d.%s:%d", i +1, myhero.user.username, myhero.user.score);
         strcpy(users[i], myhero.user.username);
         scores[i] = myhero.user.score;
+        i++;
+        myhero.user.rank = i;
     }
 
     for (int j = 0; j < i; j++) {
@@ -174,6 +180,9 @@ void rerank() {
                 strcpy(tempstr, users[j]);
                 strcpy(users[j], users[k]);
                 strcpy(users[k], tempstr);
+
+                if (myhero.user.rank == j +1) myhero.user.rank = k +1;
+                else if(myhero.user.rank == k +1) myhero.user.rank = j +1;
             }
         }
     }
@@ -191,6 +200,7 @@ void weapons() {
 
 
 void options(int choice) {
+    loadBoard();
     switch (choice)
     {
     case 0:
@@ -276,16 +286,17 @@ void movementHandler(int j, int i) {
 int main() {
     user_data player = setupLogin();
     myhero.user = player;
-    if (player.logStatus == -1) {
+    if (myhero.user.logStatus == -1) {
         endwin();
         return 0;
     }
 
+    loadBoard();
     renderGame();
 
-    player.logStatus = -1;
-    writeUserInfo(player);
-    saveDungeon(player.username);
+    myhero.user.logStatus = -1;
+    writeUserInfo(myhero.user);
+    saveDungeon(myhero.user.username);
 
     printf("Press Enter to exit. \n");
     getchar();

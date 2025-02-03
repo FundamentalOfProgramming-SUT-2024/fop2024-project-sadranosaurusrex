@@ -324,7 +324,7 @@ int settingMenu() {
     initscr();                
     keypad(stdscr, TRUE);     
     noecho();                 
-    cbreak();                 
+    cbreak();                
 
     int choice = -1;
     int highlight = 0;
@@ -362,6 +362,8 @@ int settingMenu() {
         if (choice < n_options && choice > -1) { // Exit option
             return choice;
         }
+        loadBoard();
+        printw("firs on board: %s", board[0]); 
     }
 
     endwin();

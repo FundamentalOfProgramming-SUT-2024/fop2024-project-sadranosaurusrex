@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "string.h": "c",
-        "time.h": "c"
+        "time.h": "c",
+        "userfilecreator.h": "c",
+        "cmath": "c"
     }
 }
