@@ -21,6 +21,25 @@ typedef struct {
     user_data user;
 } hero;
 
+typedef struct {
+    int floor;
+    int x;
+    int y;
+    int visiblity;
+    int type;
+} trap;
+
+typedef struct {
+    int DifficultyLevel;
+    int heroColor;
+    char messages[256][50];
+    trap traps[20];
+    trap hiddenDoors[20];
+    trap food[20];
+    trap spell[20];
+    trap weapon[20]; 
+} gameInfo;
+
 extern char board[256][50];
 
 void writeUserInfo(user_data user);

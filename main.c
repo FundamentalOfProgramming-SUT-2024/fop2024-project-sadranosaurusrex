@@ -15,6 +15,8 @@
 #define MAP_WIDTH 80
 #define MAX_HEALTH 100
 
+int heroColor = 6;
+
 hero createHero() {
     hero newHero;
     newHero.floor = 0;
@@ -45,6 +47,8 @@ user_data userFinder(char* username) {
 } 
 
 hero myhero;
+gameInfo mygame;
+int messageIndex = -1;
 
 user_data newPlayerCreation (char username[], char password[]) {
     user_data newplayer;
@@ -97,11 +101,23 @@ user_data setupLogin() {
 }
 
 void onlySomeFeet (int feet, int floor) {
+    start_color();
+    init_pair(1, COLOR_WHITE, COLOR_BLACK);
+    init_pair(2, COLOR_RED, COLOR_BLACK);
+    init_pair(3, COLOR_GREEN, COLOR_BLACK);
+    init_pair(4, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(5, COLOR_BLUE, COLOR_BLACK);
+    init_pair(6, COLOR_MAGENTA, COLOR_BLACK);
+    init_pair(7, COLOR_CYAN, COLOR_BLACK);
+    
     clear();
     for (int i = myhero.x -feet; i <= myhero.x +feet; i++) {
         for (int j = myhero.y -feet; j <= myhero.y +feet; j++) {
-            if (i > 0 && i <= MAP_HEIGHT *3 && j > 0 && j <= MAP_WIDTH*2) 
+            if (i > 0 && i <= MAP_HEIGHT *3 && j > 0 && j <= MAP_WIDTH*2) {
+                if (dungeon[floor][j][i] == '.') attron(COLOR_PAIR(7));
                 mvprintw(j, i, "%c", dungeon[floor][j][i]);
+                if (dungeon[floor][j][i] == '.') attroff(COLOR_PAIR(7));
+            }
         }
     }
     movementHandler(0, 0);
@@ -121,6 +137,8 @@ int U() {
             break;
         }
     }
+    
+    strcpy(mygame.messages[++messageIndex], "You've found the door to the next floor!\n");
     return myhero.floor;
 }
 
@@ -138,6 +156,8 @@ int D() {
             break;
         }
     }
+
+    strcpy(mygame.messages[++messageIndex], "You've found the door to the previous floor!\n");
     return myhero.floor;
 }
 
@@ -200,12 +220,17 @@ void weapons() {
 
 }
 
+void supplements() {
+
+}
+
 
 void options(int choice) {
     loadBoard();
     switch (choice)
     {
     case 0:
+        supplements();
         return;
     
     case 1:
@@ -223,11 +248,44 @@ void options(int choice) {
         boardSaver();
         break;
     }
+    case 4:
+        int difficulty = Difficulty();
+        break;
+
+    case 5:
+        myhero.heroSymbol = heroCharacters();
+        break;
+
+    case 6:
+        heroColor = 1 +HeroColors();
+        break;
 
     default:
         break;
     }
 }
+
+void displayMessages() {
+    screen_setup();
+
+    while (1) {
+        clear();
+        bunny();
+
+        for (int i = messageIndex, j = 0; i > -1 && messageIndex -i < MAP_HEIGHT; i--, j++) {
+            mvprintw(j, 0, "%d. %s", i +1, mygame.messages[i]);
+        }
+
+        char c = getch();
+        refresh();
+        if (c == 'q' || c == 'm') {
+            break;
+        }
+    }
+
+    endwin();
+}
+
 
 void renderGame() {
     initscr();
@@ -235,7 +293,8 @@ void renderGame() {
     curs_set(FALSE);
 
     int currentFloor = myhero.floor;
-    int displayStatus = 1;
+    int displayStatus = -1;
+    int speed = -1;
 
     while (1) {
         if (displayStatus == 1) displayFloor(currentFloor);
@@ -252,41 +311,68 @@ void renderGame() {
         }
         
         int ch = getch();
-        if (ch == 'y') movementHandler(-1, -1);
-        else if (ch == 'u') movementHandler(-1, 1);
-        else if (ch == 'h') movementHandler(0, -1);
-        else if (ch == 'j') movementHandler(-1, 0);
-        else if (ch == 'k') movementHandler(1, 0);
-        else if (ch == 'l') movementHandler(0, 1);
-        else if (ch == 'b') movementHandler(1, -1);
-        else if (ch == 'n') movementHandler(1, 1);
+        if (ch == 'v') speed *= -1;
+        else if (ch == 'y' && speed == 1) movementHandler(-2, -2); else if (ch == 'y') movementHandler(-1, -1);
+        else if (ch == 'u' && speed == 1) movementHandler(-2, 2); else if (ch == 'u') movementHandler(-1, 1);
+        else if (ch == 'h' && speed == 1) movementHandler(0, -2); else if (ch == 'h') movementHandler(0, -1);
+        else if (ch == 'j' && speed == 1) movementHandler(-2, 0); else if (ch == 'j') movementHandler(-1, 0);
+        else if (ch == 'k' && speed == 1) movementHandler(2, 0); else if (ch == 'k') movementHandler(1, 0);
+        else if (ch == 'l' && speed == 1) movementHandler(0, 2); else if (ch == 'l') movementHandler(0, 1);
+        else if (ch == 'b' && speed == 1) movementHandler(2, -2); else if (ch == 'b') movementHandler(1, -1);
+        else if (ch == 'n' && speed == 1) movementHandler(2, 2); else if (ch == 'n') movementHandler(1, 1);
         else if (ch == 'q') break;
         else if (ch == 's' && currentFloor > 0) currentFloor--;
         else if (ch == 'w' && currentFloor < FLOORS - 1) currentFloor++;
         else if (ch == 'a') displayStatus *= -1;
         else if (ch == 'p') {
             options(settingMenu());
-        }
+        } else if (ch == 'm') {
+            displayMessages();
+        } else if (ch == 'e') {}
     }
 
     endwin();
 }
 
 void movementHandler(int j, int i) {
+    start_color();
+    init_pair(1, COLOR_WHITE, COLOR_BLACK);
+    init_pair(2, COLOR_RED, COLOR_BLACK);
+    init_pair(3, COLOR_GREEN, COLOR_BLACK);
+    init_pair(4, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(5, COLOR_BLUE, COLOR_BLACK);
+    init_pair(6, COLOR_MAGENTA, COLOR_BLACK);
+    init_pair(7, COLOR_CYAN, COLOR_BLACK);
+
     bunny();
     int desx = myhero.x +i;
     int desy = myhero.y +j;
     if (desx < 1 || desy < 1 || desx > MAP_WIDTH || desy > MAP_HEIGHT 
-        || dungeon[myhero.floor][desy][desx] == '|' || dungeon[myhero.floor][desy][desx] == '_') return;
-    else 
-    myhero.x += i;
-    myhero.y += j;
-    attron(A_REVERSE); mvprintw(myhero.y, myhero.x, "%c", myhero.heroSymbol); attroff(A_REVERSE);
+        || dungeon[myhero.floor][desy][desx] == '|' || dungeon[myhero.floor][desy][desx] == '_'
+        || dungeon[myhero.floor][desy][desx] == ' ') return;
+    else {
+        myhero.x += i;
+        myhero.y += j;
+        attron(COLOR_PAIR(heroColor));
+        attron(A_REVERSE);
+        mvprintw(myhero.y, myhero.x, "%c", myhero.heroSymbol);
+        attroff(COLOR_PAIR(heroColor));
+        attroff(A_REVERSE);
+    }
     return;
 }
 
 int main() {
     setlocale(LC_ALL, "");
+    start_color(); 
+
+    init_pair(1, COLOR_WHITE, COLOR_BLACK);
+    init_pair(2, COLOR_RED, COLOR_BLACK);
+    init_pair(3, COLOR_GREEN, COLOR_BLACK);
+    init_pair(4, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(5, COLOR_BLUE, COLOR_BLACK);
+    init_pair(6, COLOR_MAGENTA, COLOR_BLACK);
+    init_pair(7, COLOR_CYAN, COLOR_BLACK);
 
     user_data player = setupLogin();
     myhero.user = player;
@@ -302,6 +388,8 @@ int main() {
 
     time_t end_time = time(NULL);
     
+    rerank();
+    boardSaver();
     myhero.user.logStatus = -1;
     myhero.user.count_games++;
     myhero.user.experience += (int)difftime(end_time, start_time);

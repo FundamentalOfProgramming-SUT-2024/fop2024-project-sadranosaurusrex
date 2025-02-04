@@ -5,6 +5,10 @@ int menu();
 int NewGameChoices();
 int bunny();
 void boardDisplayer();
+int HeroColors();
+char heroCharacters();
+int Difficulty();
+void screen_setup();
 
 extern char usernameext[50];
 extern char passwordext[50];

@@ -334,7 +334,7 @@ int settingMenu() {
 
     int choice = -1;
     int highlight = 0;
-    const char *options[] = { "Food", "Weapons", "Score Board", "Save", "Back" };
+    const char *options[] = { "Food", "Weapons", "Score Board", "Save", "Difficulty", "Heros", "Hero Colors", "Back" };
     int n_options = sizeof(options) / sizeof(options[0]);
 
     while (1) {
@@ -368,8 +368,151 @@ int settingMenu() {
         if (choice < n_options && choice > -1) { // Exit option
             return choice;
         }
-        loadBoard();
-        printw("firs on board: %s", board[0]); 
+        //RECENTLY I REMOVE LOADBOAR() FROM HERE
+    }
+
+    endwin();
+    return 0;
+}
+
+int Difficulty() {
+    initscr();                
+    keypad(stdscr, TRUE);     
+    noecho();                 
+    cbreak();                
+
+    int choice = -1;
+    int highlight = 0;
+    const char *options[] = { "IRAN MODE", "EXTREME", "MEDIUM"};
+    int n_options = sizeof(options) / sizeof(options[0]);
+
+    while (1) {
+        clear();
+        for (int i = 0; i < n_options; i++) {
+            if (i == highlight) {
+                attron(A_REVERSE); // Highlight the current option
+            }
+            mvprintw(i, 0, "%s", options[i]); // Print option
+
+            if (i == highlight) {
+                attroff(A_REVERSE); // Turn off highlight
+            }
+        }
+
+        int key = getch();
+        switch (key) {
+            case KEY_UP:
+                highlight = (highlight - 1 + n_options) % n_options; // Move up
+                break;
+            case KEY_DOWN:
+                highlight = (highlight + 1) % n_options; // Move down
+                break;
+            case 10: // Enter key
+                choice = highlight;
+                printw("Chose\n");
+                getchar();
+                break;
+        }
+
+        if (choice < n_options && choice > -1) { // Exit option
+            return choice;
+        }
+    }
+
+    endwin();
+    return 0;
+}
+
+int HeroColors() {
+    initscr();                
+    keypad(stdscr, TRUE);     
+    noecho();                 
+    cbreak();                
+
+    int choice = -1;
+    int highlight = 0;
+    const char *options[] = { "WHITE", "RED", "GREEN", "YELLOW", "BLUE", "MAGENTA", "CYAN"};
+    int n_options = sizeof(options) / sizeof(options[0]);
+
+    while (1) {
+        clear();
+        for (int i = 0; i < n_options; i++) {
+            if (i == highlight) {
+                attron(A_REVERSE); // Highlight the current option
+            }
+            mvprintw(i, 0, "%s", options[i]); // Print option
+
+            if (i == highlight) {
+                attroff(A_REVERSE); // Turn off highlight
+            }
+        }
+
+        int key = getch();
+        switch (key) {
+            case KEY_UP:
+                highlight = (highlight - 1 + n_options) % n_options; // Move up
+                break;
+            case KEY_DOWN:
+                highlight = (highlight + 1) % n_options; // Move down
+                break;
+            case 10: // Enter key
+                choice = highlight;
+                printw("Chose\n");
+                getchar();
+                break;
+        }
+
+        if (choice < n_options && choice > -1) { // Exit option
+            return choice;
+        }
+    }
+
+    endwin();
+    return 0;
+}
+
+char heroCharacters() {
+    initscr();                
+    keypad(stdscr, TRUE);     
+    noecho();                 
+    cbreak();                
+
+    int choice = -1;
+    int highlight = 0;
+    const char *options[] = { "0", "1", "2", "3", "4", "5", "6"};
+    int n_options = sizeof(options) / sizeof(options[0]);
+
+    while (1) {
+        clear();
+        for (int i = 0; i < n_options; i++) {
+            if (i == highlight) {
+                attron(A_REVERSE); // Highlight the current option
+            }
+            mvprintw(i, 0, "%s", options[i]); // Print option
+
+            if (i == highlight) {
+                attroff(A_REVERSE); // Turn off highlight
+            }
+        }
+
+        int key = getch();
+        switch (key) {
+            case KEY_UP:
+                highlight = (highlight - 1 + n_options) % n_options; // Move up
+                break;
+            case KEY_DOWN:
+                highlight = (highlight + 1) % n_options; // Move down
+                break;
+            case 10: // Enter key
+                choice = highlight;
+                printw("Chose\n");
+                getchar();
+                break;
+        }
+
+        if (choice < n_options && choice > -1) { // Exit option
+            return options[choice][0];
+        }
     }
 
     endwin();
@@ -379,11 +522,12 @@ int settingMenu() {
 void boardDisplayer() {
     screen_setup();
     setlocale(LC_ALL, "");
+    start_color(); 
     keypad(stdscr, TRUE);  // Enable arrow keys
+
     init_pair(1, COLOR_YELLOW, COLOR_BLACK);  // Yellow text
     init_pair(2, COLOR_CYAN, COLOR_BLACK);    // Cyan text
     init_pair(3, COLOR_MAGENTA, COLOR_BLACK); // Magenta text
-
     wchar_t trophy[] = L"\U0001F3C6"; // Trophy
     wchar_t medal1[] = L"\U0001F947"; // 1st place medal
     wchar_t medal2[] = L"\U0001F948"; // 2nd place medal
@@ -398,7 +542,7 @@ void boardDisplayer() {
 
         attron(A_REVERSE);
         mvwprintw(stdscr, 0, 0, "%s (YOU) ", board[myhero.user.rank - 1]);
-        wprintw(stdscr, L"%ls", star);
+        wprintw(stdscr, "%ls", star);
         attroff(A_REVERSE);
 
         for (int i = firstLine; i < MAP_HEIGHT - 1 + firstLine && board[i][0] != '\0'; i++) {
