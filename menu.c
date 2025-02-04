@@ -8,6 +8,10 @@
 #include "menu.h"
 #include "UserFileCreator.h"
 #include "main.h"
+#include <locale.h>
+
+#define MAP_HEIGHT 30
+#define MAP_WIDTH 80
 
 // Function declarations
 int valid_password(const char *password);
@@ -27,7 +31,9 @@ void screen_setup() {
     initscr();
     cbreak();
     noecho();
+    curs_set(false);
     keypad(stdscr, TRUE);
+    setlocale(LC_ALL, "");
 }
 
 // int main() {
@@ -371,5 +377,71 @@ int settingMenu() {
 }
 
 void boardDisplayer() {
-    
+    screen_setup();
+    setlocale(LC_ALL, "");
+    keypad(stdscr, TRUE);  // Enable arrow keys
+    init_pair(1, COLOR_YELLOW, COLOR_BLACK);  // Yellow text
+    init_pair(2, COLOR_CYAN, COLOR_BLACK);    // Cyan text
+    init_pair(3, COLOR_MAGENTA, COLOR_BLACK); // Magenta text
+
+    wchar_t trophy[] = L"\U0001F3C6"; // Trophy
+    wchar_t medal1[] = L"\U0001F947"; // 1st place medal
+    wchar_t medal2[] = L"\U0001F948"; // 2nd place medal
+    wchar_t medal3[] = L"\U0001F949"; // 3rd place medal
+    wchar_t star[] = L"\u2B50";       // Star
+
+    int firstLine = 0;
+
+    while (1) {
+        clear();
+        bunny();
+
+        attron(A_REVERSE);
+        mvwprintw(stdscr, 0, 0, "%s (YOU) ", board[myhero.user.rank - 1]);
+        wprintw(stdscr, L"%ls", star);
+        attroff(A_REVERSE);
+
+        for (int i = firstLine; i < MAP_HEIGHT - 1 + firstLine && board[i][0] != '\0'; i++) {
+            char tempBoard[256];
+            strcpy(tempBoard, board[i]);
+            char *temp = strtok(tempBoard, ".");
+            char *username = strtok(NULL, ":");
+
+            user_data user;
+            strcpy(user.username, username);
+            user = readUserInfo(user);
+
+            // Display user info
+            mvprintw(i + 1 -firstLine, 0, "%s, Gold:%d, CountGames:%d, Experience:%d", board[i], user.gold, user.count_games, user.experience);
+
+            // Display medals with colors for top 3 players
+            if (i == 0) {
+                attron(COLOR_PAIR(1));
+                wprintw(stdscr, " (GOAT) %ls", medal1);
+                attroff(COLOR_PAIR(1));
+            } else if (i == 1) {
+                attron(COLOR_PAIR(2));
+                wprintw(stdscr, " (LEGEND) %ls", medal2);
+                attroff(COLOR_PAIR(2));
+            } else if (i == 2) {
+                attron(COLOR_PAIR(3));
+                wprintw(stdscr, " (PRO) %ls", medal3);
+                attroff(COLOR_PAIR(3));
+            }
+        }
+
+        refresh();
+
+        // Input handling
+        int c = getch();
+        if (c == KEY_DOWN && board[firstLine + MAP_HEIGHT][0] != '\0') {
+            firstLine++;
+        } else if (c == KEY_UP && firstLine != 0) {
+            firstLine--;
+        } else if (c == 'q' || c == 'Q') {
+            break;
+        }
+    }
+
+    endwin();
 }

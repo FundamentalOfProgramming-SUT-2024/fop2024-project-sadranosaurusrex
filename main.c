@@ -8,6 +8,8 @@
 #include "menu.h"
 #include "UserFileCreator.h"
 #include "main.h"
+#include <locale.h>
+#include <unistd.h>
 
 #define MAP_HEIGHT 30
 #define MAP_WIDTH 80
@@ -284,6 +286,8 @@ void movementHandler(int j, int i) {
 }
 
 int main() {
+    setlocale(LC_ALL, "");
+
     user_data player = setupLogin();
     myhero.user = player;
     if (myhero.user.logStatus == -1) {
@@ -291,10 +295,16 @@ int main() {
         return 0;
     }
 
+    time_t start_time = time(NULL);
+
     loadBoard();
     renderGame();
 
+    time_t end_time = time(NULL);
+    
     myhero.user.logStatus = -1;
+    myhero.user.count_games++;
+    myhero.user.experience += (int)difftime(end_time, start_time);
     writeUserInfo(myhero.user);
     saveDungeon(myhero.user.username);
 
