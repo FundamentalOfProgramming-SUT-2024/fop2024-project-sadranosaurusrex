@@ -757,3 +757,68 @@ int weaponDisplayer() {
     endwin();  // Close ncurses
     return 0;
 }
+
+int spellDisplayer() {
+    if (myhero.weaponIndex < 0)
+        return -1;
+
+    initscr();
+    keypad(stdscr, TRUE);
+    noecho();
+    cbreak();
+    start_color();
+
+    int choice = -1;
+    int highlight = 0;
+
+    while (1) {
+        int j;
+        clear();
+        for (int i = 0; i < myhero.spellIndex; i++) {
+            if (i == highlight) {
+                attron(A_REVERSE);  // Highlight current option
+            }
+
+            // Display weapon based on type
+            switch (mygame.weapon[myhero.weapon[i]].type) {
+                case 0:
+                    mvwprintw(stdscr, i, 0, "Health");
+                    break;
+                case 1:
+                    mvwprintw(stdscr, i, 0, "Speed");
+                    break;
+                case 2:
+                    mvwprintw(stdscr, i, 0, "Damage");
+                    break;
+            }
+
+            if (i == highlight) {
+                attroff(A_REVERSE);  // Turn off highlight
+            }
+            j = i + 1;
+        }
+
+        refresh();  // Refresh screen after printing
+
+        int key = getch();
+        switch (key) {
+            case KEY_UP:
+                highlight = (highlight - 1 + j) % j;  // Move up
+                break;
+            case KEY_DOWN:
+                highlight = (highlight + 1) % j;  // Move down
+                break;
+            case 10:  // Enter key
+                choice = highlight;
+                break;
+        }
+
+        if (choice >= 0 && choice < j) {  // Valid choice
+            endwin();
+            return choice;
+        }
+    }
+
+    endwin();  // Close ncurses
+    return 0;
+}

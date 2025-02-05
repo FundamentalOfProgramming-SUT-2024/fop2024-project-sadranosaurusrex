@@ -10,6 +10,7 @@ char heroCharacters();
 int Difficulty();
 void screen_setup();
 int weaponDisplayer();
+int spellDisplayer();
 
 extern char usernameext[50];
 extern char passwordext[50];

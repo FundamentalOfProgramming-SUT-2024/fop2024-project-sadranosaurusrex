@@ -1,5 +1,5 @@
-1.sadra:20
-2.Guest:0
+1.Guest:40
+2.sadra:20
 3.ali:0
 4.hasan:-1
 5.hasan:-1

@@ -13,14 +13,14 @@
 
 #define MAP_HEIGHT 30
 #define MAP_WIDTH 80
-#define MAX_HEALTH 100
+#define MAX_HEALTH 150
 
 int heroColor = 6;
 
 hero createHero() {
     hero newHero;
     newHero.floor = 0;
-    newHero.health = MAX_HEALTH;
+    newHero.health = 2*MAX_HEALTH/3;
     newHero.heroSymbol = '0';
 
     srand(time(NULL));
@@ -281,7 +281,10 @@ void options(int choice) {
         break;
 
     case 7: {
-        int spell;
+        int spell = spellDisplayer();
+        if (spell = -1) break;
+        myhero.currentSpell = spell;
+        break;
     }
 
     default:
@@ -312,7 +315,8 @@ void displayMessages() {
 
 int spellDetector() {
     for (int i = 0; i < 20; i++) {
-        if (mygame.spell[i].x == myhero.x && mygame.spell[i].y == myhero.y && mygame.spell[i].floor == myhero.floor) {
+        if (mygame.spell[i].x == myhero.x && mygame.spell[i].y == myhero.y 
+            && mygame.spell[i].floor == myhero.floor && mygame.spell[i].visiblity == -1) {
             return i;
         }
     }
@@ -321,7 +325,8 @@ int spellDetector() {
 
 int trapDetector() {
     for (int i = 0; i < 20; i++) {
-        if (mygame.traps[i].x == myhero.x && mygame.traps[i].y == myhero.y && mygame.traps[i].floor == myhero.floor) {
+        if (mygame.traps[i].x == myhero.x && mygame.traps[i].y == myhero.y 
+            && mygame.traps[i].floor == myhero.floor) {
             return i;
         }
     }
@@ -330,7 +335,8 @@ int trapDetector() {
 
 int foodDetector() {
     for (int i = 0; i < 20; i++) {
-        if (mygame.food[i].x == myhero.x && mygame.food[i].y == myhero.y && mygame.food[i].floor == myhero.floor) {
+        if (mygame.food[i].x == myhero.x && mygame.food[i].y == myhero.y 
+            && mygame.food[i].floor == myhero.floor && mygame.food[i].visiblity == -1) {
             return i;
         }
     }
@@ -339,7 +345,8 @@ int foodDetector() {
 
 int goldDetector() {
     for (int i = 0; i < 20; i++) {
-        if (mygame.gold[i].x == myhero.x && mygame.gold[i].y == myhero.y && mygame.gold[i].floor == myhero.floor) {
+        if (mygame.gold[i].x == myhero.x && mygame.gold[i].y == myhero.y 
+            && mygame.gold[i].floor == myhero.floor && mygame.gold[i].visiblity == -1) {
             return i;
         }
     }
@@ -348,7 +355,8 @@ int goldDetector() {
 
 int weaponDetector() {
     for (int i = 0; i < 20; i++) {
-        if (mygame.weapon[i].x == myhero.x && mygame.weapon[i].y == myhero.y && mygame.weapon[i].floor == myhero.floor) {
+        if (mygame.weapon[i].x == myhero.x && mygame.weapon[i].y == myhero.y 
+            && mygame.weapon[i].floor == myhero.floor && mygame.weapon[i].visiblity == -1) {
             return i;
         }
     }
@@ -406,7 +414,10 @@ void renderGame() {
             if (c == 'g') {
                 mygame.food[index].visiblity = 1;
                 dungeon[myhero.floor][myhero.y][myhero.x] = '.';
-                strcpy(mygame.messages[++messageIndex], "You consumed food!\n");
+                myhero.health += mygame.food[index].type*10 +5;
+                char tempmessage[256];
+                snprintf(tempmessage, sizeof(tempmessage), "You consumed food! Now your health is %d/%d\n", myhero.health, MAX_HEALTH);
+                strcpy(mygame.messages[++messageIndex], tempmessage);
             }
         }
         index = goldDetector();

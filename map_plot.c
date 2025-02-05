@@ -298,7 +298,7 @@ void generateFood() {
             int randomX = rand() % (MAP_WIDTH);
             int randomY = rand() % (MAP_HEIGHT);
             int randomF = rand() % (FLOORS);
-            int randomType = rand() % 4;
+            int randomType = -1 +rand() % 4;
 
             if (dungeon[randomF][randomY][randomX] == '.') {
                 mygame.food[i].floor = randomF;
@@ -318,7 +318,7 @@ void generateFood() {
             int randomX = rand() % (MAP_WIDTH);
             int randomY = rand() % (MAP_HEIGHT);
             int randomF = 1;
-            int randomType = rand() % 4;
+            int randomType = -1 +rand() % 4;
 
             if (dungeon[randomF][randomY][randomX] == '.') {
                 mygame.food[i].floor = randomF;
