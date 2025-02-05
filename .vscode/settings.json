@@ -4,6 +4,7 @@
         "time.h": "c",
         "userfilecreator.h": "c",
         "cmath": "c",
-        "menu.h": "c"
+        "menu.h": "c",
+        "main.h": "c"
     }
 }

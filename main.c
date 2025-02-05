@@ -100,6 +100,16 @@ user_data setupLogin() {
     return newuser;
 }
 
+void newGame() {
+    mygame.DifficultyLevel = 0;
+    mygame.heroColor = 3;
+    generateSpell();
+    generateTrap();
+    generateFood();
+    generateGold();
+    generateWeapon();
+}
+
 void onlySomeFeet (int feet, int floor) {
     start_color();
     init_pair(1, COLOR_WHITE, COLOR_BLACK);
@@ -309,6 +319,10 @@ void renderGame() {
         else if (dungeon[currentFloor][myhero.y][myhero.x] == 'D') {
             currentFloor = D();
         }
+        else if (dungeon[currentFloor][myhero.y][myhero.x] == 'W') {
+            strcpy(mygame.messages[++messageIndex], "You won!\n");
+            break;
+        }
         
         int ch = getch();
         if (ch == 'v') speed *= -1;
@@ -384,6 +398,7 @@ int main() {
     time_t start_time = time(NULL);
 
     loadBoard();
+    newGame();
     renderGame();
 
     time_t end_time = time(NULL);

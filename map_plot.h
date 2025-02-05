@@ -10,5 +10,10 @@ extern char dungeon[FLOORS][MAP_HEIGHT][MAP_WIDTH];
 void displayFloor(int floor);
 void map_generator();
 void renderGame();
+void generateSpell();
+void generateTrap();
+void generateFood();
+void generateGold();
+void generateWeapon();
 
 #endif // MAP_PLOT_H

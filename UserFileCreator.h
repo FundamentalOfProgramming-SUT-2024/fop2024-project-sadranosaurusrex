@@ -34,7 +34,7 @@ typedef struct {
     int heroColor;
     char messages[256][50];
     trap traps[20];
-    trap hiddenDoors[20];
+    trap gold[20];
     trap food[20];
     trap spell[20];
     trap weapon[20]; 
