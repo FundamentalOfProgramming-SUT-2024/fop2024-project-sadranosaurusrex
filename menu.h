@@ -9,6 +9,7 @@ int HeroColors();
 char heroCharacters();
 int Difficulty();
 void screen_setup();
+int weaponDisplayer();
 
 extern char usernameext[50];
 extern char passwordext[50];

@@ -36,6 +36,12 @@ hero createHero() {
         }
     }
 
+    newHero.weaponIndex = 0;
+    newHero.spellIndex = 0;
+    newHero.currentSpell = -1;
+    newHero.currentWeapon = 20;
+    newHero.weapon[20] = 0;
+
     return newHero;
 }
 
@@ -243,9 +249,12 @@ void options(int choice) {
         supplements();
         return;
     
-    case 1:
-        weapons();
+    case 1: {
+        int weapon = weaponDisplayer();
+        if (weapon = -1) break;
+        myhero.currentWeapon = weapon;
         break;
+    }
 
     case 2: {
         rerank();
@@ -258,9 +267,10 @@ void options(int choice) {
         boardSaver();
         break;
     }
-    case 4:
+    case 4: {
         int difficulty = Difficulty();
         break;
+    }
 
     case 5:
         myhero.heroSymbol = heroCharacters();
@@ -269,6 +279,10 @@ void options(int choice) {
     case 6:
         heroColor = 1 +HeroColors();
         break;
+
+    case 7: {
+        int spell;
+    }
 
     default:
         break;
@@ -296,6 +310,50 @@ void displayMessages() {
     endwin();
 }
 
+int spellDetector() {
+    for (int i = 0; i < 20; i++) {
+        if (mygame.spell[i].x == myhero.x && mygame.spell[i].y == myhero.y && mygame.spell[i].floor == myhero.floor) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int trapDetector() {
+    for (int i = 0; i < 20; i++) {
+        if (mygame.traps[i].x == myhero.x && mygame.traps[i].y == myhero.y && mygame.traps[i].floor == myhero.floor) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int foodDetector() {
+    for (int i = 0; i < 20; i++) {
+        if (mygame.food[i].x == myhero.x && mygame.food[i].y == myhero.y && mygame.food[i].floor == myhero.floor) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int goldDetector() {
+    for (int i = 0; i < 20; i++) {
+        if (mygame.gold[i].x == myhero.x && mygame.gold[i].y == myhero.y && mygame.gold[i].floor == myhero.floor) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+int weaponDetector() {
+    for (int i = 0; i < 20; i++) {
+        if (mygame.weapon[i].x == myhero.x && mygame.weapon[i].y == myhero.y && mygame.weapon[i].floor == myhero.floor) {
+            return i;
+        }
+    }
+    return -1;
+}
 
 void renderGame() {
     initscr();
@@ -313,17 +371,67 @@ void renderGame() {
         if (myhero.floor == currentFloor) movementHandler(0, 0);
         else mvprintw(myhero.y, myhero.x, "%c", dungeon[currentFloor][myhero.y][myhero.x]);
         
-        if (dungeon[currentFloor][myhero.y][myhero.x] == 'U') {
+        if (dungeon[myhero.floor][myhero.y][myhero.x] == 'U') {
             currentFloor = U();
         }
-        else if (dungeon[currentFloor][myhero.y][myhero.x] == 'D') {
+        else if (dungeon[myhero.floor][myhero.y][myhero.x] == 'D') {
             currentFloor = D();
         }
-        else if (dungeon[currentFloor][myhero.y][myhero.x] == 'W') {
+        else if (dungeon[myhero.floor][myhero.y][myhero.x] == 'W') {
             strcpy(mygame.messages[++messageIndex], "You won!\n");
             break;
         }
-        
+
+        int index = spellDetector();
+        if (index != -1) {
+            int c = getch();
+            if (c == 'g') {
+                mygame.spell[index].visiblity = 1;
+                dungeon[myhero.floor][myhero.y][myhero.x] = '.';
+                strcpy(mygame.messages[++messageIndex], "You've grabbed an enchant!\n");
+                myhero.spell[myhero.spellIndex++] = index;
+            }
+        }
+        index = trapDetector();
+        if (index != -1) {
+            if (1) {
+                //mygame.traps[index].visiblity = 1;
+                dungeon[myhero.floor][myhero.y][myhero.x] = '^';
+                strcpy(mygame.messages[++messageIndex], "You've fallen in a trap!\n");
+            }
+        }
+        index = foodDetector();
+        if (index != -1) {
+            int c = getch();
+            if (c == 'g') {
+                mygame.food[index].visiblity = 1;
+                dungeon[myhero.floor][myhero.y][myhero.x] = '.';
+                strcpy(mygame.messages[++messageIndex], "You consumed food!\n");
+            }
+        }
+        index = goldDetector();
+        if (index != -1) {
+            int c = getch();
+            if (c == 'g') {
+                mygame.food[index].visiblity = 1;
+                dungeon[myhero.floor][myhero.y][myhero.x] = '.';
+                myhero.user.gold += 10*mygame.gold[index].type +10;
+                myhero.user.score += 10*mygame.gold[index].type +10;
+                strcpy(mygame.messages[++messageIndex], "You've grabbed a gold!\n");
+                writeUserInfo(myhero.user);
+            }
+        }
+        index = weaponDetector();
+        if (index != -1) {
+            int c = getch();
+            if (c == 'g') {
+                mygame.food[index].visiblity = 1;
+                dungeon[myhero.floor][myhero.y][myhero.x] = '.';
+                strcpy(mygame.messages[++messageIndex], "You've grabbed a weapon!\n");
+                myhero.weapon[myhero.weaponIndex++] = index;
+            }
+        }
+
         int ch = getch();
         if (ch == 'v') speed *= -1;
         else if (ch == 'y' && speed == 1) movementHandler(-2, -2); else if (ch == 'y') movementHandler(-1, -1);

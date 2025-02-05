@@ -19,6 +19,12 @@ typedef struct {
     int y;
     char heroSymbol;
     user_data user;
+    int weapon[21];
+    int weaponIndex;
+    int currentWeapon;
+    int spell[20];
+    int spellIndex;
+    int currentSpell;
 } hero;
 
 typedef struct {

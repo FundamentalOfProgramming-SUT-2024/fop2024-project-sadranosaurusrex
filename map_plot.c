@@ -223,14 +223,14 @@ void generateTrap() {
                 mygame.traps[i].floor = randomF;
                 mygame.traps[i].x = randomX;
                 mygame.traps[i].y = randomY;
-                dungeon[randomF][randomY][randomX]= '^';
+                //dungeon[randomF][randomY][randomX]= '^';
                 break;
             }
         }
     }
 
     //for treasure room: 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 5; i < 10; i++) {
         while (1) {
             int randomX = rand() % (MAP_WIDTH/3);
             int randomY = MAP_HEIGHT/2 +rand() % (MAP_HEIGHT/2);
@@ -240,7 +240,7 @@ void generateTrap() {
                 mygame.traps[i].floor = randomF;
                 mygame.traps[i].x = randomX;
                 mygame.traps[i].y = randomY;
-                dungeon[randomF][randomY][randomX] = '^';
+                //dungeon[randomF][randomY][randomX] = '^';
                 break;
             }
         }
@@ -270,7 +270,7 @@ void generateSpell() {
     }
 
     //for spell room: 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 5; i < 10; i++) {
         while (1) {
             int randomX = rand() % (MAP_WIDTH);
             int randomY = rand() % (MAP_HEIGHT);
@@ -301,11 +301,11 @@ void generateFood() {
             int randomType = rand() % 4;
 
             if (dungeon[randomF][randomY][randomX] == '.') {
-                mygame.spell[i].floor = randomF;
-                mygame.spell[i].x = randomX;
-                mygame.spell[i].y = randomY;
-                mygame.spell[i].visiblity = -1;
-                mygame.spell[i].type = randomType;
+                mygame.food[i].floor = randomF;
+                mygame.food[i].x = randomX;
+                mygame.food[i].y = randomY;
+                mygame.food[i].visiblity = -1;
+                mygame.food[i].type = randomType;
                 dungeon[randomF][randomY][randomX] = 'f';
                 break;
             }
@@ -313,7 +313,7 @@ void generateFood() {
     }
 
     //for the second floor: 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 5; i < 10; i++) {
         while (1) {
             int randomX = rand() % (MAP_WIDTH);
             int randomY = rand() % (MAP_HEIGHT);
@@ -321,11 +321,11 @@ void generateFood() {
             int randomType = rand() % 4;
 
             if (dungeon[randomF][randomY][randomX] == '.') {
-                mygame.spell[i].floor = randomF;
-                mygame.spell[i].x = randomX;
-                mygame.spell[i].y = randomY;
-                mygame.spell[i].type = randomType;
-                mygame.spell[i].visiblity = -1;
+                mygame.food[i].floor = randomF;
+                mygame.food[i].x = randomX;
+                mygame.food[i].y = randomY;
+                mygame.food[i].type = randomType;
+                mygame.food[i].visiblity = -1;
                 dungeon[randomF][randomY][randomX] = 'f';
                 break;
             }
@@ -344,11 +344,11 @@ void generateGold() {
             int randomType = rand() % 2;
 
             if (dungeon[randomF][randomY][randomX] == '.') {
-                mygame.spell[i].floor = randomF;
-                mygame.spell[i].x = randomX;
-                mygame.spell[i].y = randomY;
-                mygame.spell[i].visiblity = -1;
-                mygame.spell[i].type = randomType;
+                mygame.gold[i].floor = randomF;
+                mygame.gold[i].x = randomX;
+                mygame.gold[i].y = randomY;
+                mygame.gold[i].visiblity = -1;
+                mygame.gold[i].type = randomType;
                 dungeon[randomF][randomY][randomX] = 'g';
                 break;
             }
@@ -356,7 +356,7 @@ void generateGold() {
     }
 
     //for the fourth floor: 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 5; i < 10; i++) {
         while (1) {
             int randomX = rand() % (MAP_WIDTH);
             int randomY = rand() % (MAP_HEIGHT);
@@ -364,11 +364,11 @@ void generateGold() {
             int randomType = rand() % 2;
 
             if (dungeon[randomF][randomY][randomX] == '.') {
-                mygame.spell[i].floor = randomF;
-                mygame.spell[i].x = randomX;
-                mygame.spell[i].y = randomY;
-                mygame.spell[i].type = randomType;
-                mygame.spell[i].visiblity = -1;
+                mygame.gold[i].floor = randomF;
+                mygame.gold[i].x = randomX;
+                mygame.gold[i].y = randomY;
+                mygame.gold[i].type = randomType;
+                mygame.gold[i].visiblity = -1;
                 dungeon[randomF][randomY][randomX] = 'g';
                 break;
             }
@@ -387,11 +387,11 @@ void generateWeapon() {
             int randomType = rand() % 5;
 
             if (dungeon[randomF][randomY][randomX] == '.') {
-                mygame.spell[i].floor = randomF;
-                mygame.spell[i].x = randomX;
-                mygame.spell[i].y = randomY;
-                mygame.spell[i].visiblity = -1;
-                mygame.spell[i].type = randomType;
+                mygame.weapon[i].floor = randomF;
+                mygame.weapon[i].x = randomX;
+                mygame.weapon[i].y = randomY;
+                mygame.weapon[i].visiblity = -1;
+                mygame.weapon[i].type = randomType;
                 dungeon[randomF][randomY][randomX] = '!';
                 break;
             }
@@ -399,7 +399,7 @@ void generateWeapon() {
     }
 
     //for the third floor: 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 5; i < 10; i++) {
         while (1) {
             int randomX = rand() % (MAP_WIDTH);
             int randomY = rand() % (MAP_HEIGHT);
@@ -407,11 +407,11 @@ void generateWeapon() {
             int randomType = rand() % 2;
 
             if (dungeon[randomF][randomY][randomX] == '.') {
-                mygame.spell[i].floor = randomF;
-                mygame.spell[i].x = randomX;
-                mygame.spell[i].y = randomY;
-                mygame.spell[i].type = randomType;
-                mygame.spell[i].visiblity = -1;
+                mygame.weapon[i].floor = randomF;
+                mygame.weapon[i].x = randomX;
+                mygame.weapon[i].y = randomY;
+                mygame.weapon[i].type = randomType;
+                mygame.weapon[i].visiblity = -1;
                 dungeon[randomF][randomY][randomX] = '!';
                 break;
             }
