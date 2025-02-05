@@ -14,6 +14,7 @@
 #define MAP_HEIGHT 30
 #define MAP_WIDTH 80
 #define MAX_HEALTH 150
+#define DELAY 10000
 
 int heroColor = 6;
 
@@ -367,6 +368,7 @@ void renderGame() {
     initscr();
     noecho();
     curs_set(FALSE);
+    nodelay(stdscr, TRUE);
 
     int currentFloor = myhero.floor;
     int displayStatus = -1;
@@ -378,7 +380,7 @@ void renderGame() {
         bunny();
         if (myhero.floor == currentFloor) movementHandler(0, 0);
         else mvprintw(myhero.y, myhero.x, "%c", dungeon[currentFloor][myhero.y][myhero.x]);
-        
+
         if (dungeon[myhero.floor][myhero.y][myhero.x] == 'U') {
             currentFloor = U();
         }
@@ -392,55 +394,56 @@ void renderGame() {
 
         int index = spellDetector();
         if (index != -1) {
-            int c = getch();
-            if (c == 'g') {
+            //int c = getch();
+            if (1) {
                 mygame.spell[index].visiblity = 1;
                 dungeon[myhero.floor][myhero.y][myhero.x] = '.';
                 strcpy(mygame.messages[++messageIndex], "You've grabbed an enchant!\n");
                 myhero.spell[myhero.spellIndex++] = index;
             }
+            else continue;
         }
         index = trapDetector();
         if (index != -1) {
-            if (1) {
-                //mygame.traps[index].visiblity = 1;
-                dungeon[myhero.floor][myhero.y][myhero.x] = '^';
-                strcpy(mygame.messages[++messageIndex], "You've fallen in a trap!\n");
-            }
+            dungeon[myhero.floor][myhero.y][myhero.x] = '^';
+            strcpy(mygame.messages[++messageIndex], "You've fallen in a trap!\n");
         }
         index = foodDetector();
         if (index != -1) {
-            int c = getch();
-            if (c == 'g') {
+            //int c = getch();
+            if (1) {
                 mygame.food[index].visiblity = 1;
                 dungeon[myhero.floor][myhero.y][myhero.x] = '.';
-                myhero.health += mygame.food[index].type*10 +5;
+                myhero.health += mygame.food[index].type * 10 + 5;
                 char tempmessage[256];
                 snprintf(tempmessage, sizeof(tempmessage), "You consumed food! Now your health is %d/%d\n", myhero.health, MAX_HEALTH);
                 strcpy(mygame.messages[++messageIndex], tempmessage);
             }
+            else continue;
         }
         index = goldDetector();
         if (index != -1) {
-            int c = getch();
-            if (c == 'g') {
-                mygame.food[index].visiblity = 1;
+            //int c = getch();
+            if (1) {
+                mygame.gold[index].visiblity = 1;
                 dungeon[myhero.floor][myhero.y][myhero.x] = '.';
-                myhero.user.gold += 10*mygame.gold[index].type +10;
-                myhero.user.score += 10*mygame.gold[index].type +10;
+                myhero.user.gold += 10 * mygame.gold[index].type + 10;
+                myhero.user.score += 10 * mygame.gold[index].type + 10;
                 strcpy(mygame.messages[++messageIndex], "You've grabbed a gold!\n");
                 writeUserInfo(myhero.user);
             }
+            else continue;
         }
         index = weaponDetector();
         if (index != -1) {
-            int c = getch();
-            if (c == 'g') {
-                mygame.food[index].visiblity = 1;
+            //int c = getch();
+            if (1) {
+                mygame.weapon[index].visiblity = 1;
                 dungeon[myhero.floor][myhero.y][myhero.x] = '.';
                 strcpy(mygame.messages[++messageIndex], "You've grabbed a weapon!\n");
                 myhero.weapon[myhero.weaponIndex++] = index;
             }
+            else continue;
         }
 
         int ch = getch();
@@ -458,14 +461,21 @@ void renderGame() {
         else if (ch == 'w' && currentFloor < FLOORS - 1) currentFloor++;
         else if (ch == 'a') displayStatus *= -1;
         else if (ch == 'p') {
+            nodelay(stdscr, FALSE);
             options(settingMenu());
+            nodelay(stdscr, TRUE);
         } else if (ch == 'm') {
+            nodelay(stdscr, FALSE);
             displayMessages();
+            nodelay(stdscr, TRUE);
         } else if (ch == 'e') {}
+
+        usleep(DELAY);
     }
 
     endwin();
 }
+
 
 void movementHandler(int j, int i) {
     start_color();
