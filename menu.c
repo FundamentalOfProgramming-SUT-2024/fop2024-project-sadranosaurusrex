@@ -711,19 +711,19 @@ int weaponDisplayer() {
             // Display weapon based on type
             switch (mygame.weapon[myhero.weapon[i]].type) {
                 case 0:
-                    mvwprintw(stdscr, i, 0, "Mace");
+                    mvwprintw(stdscr, i, 0, "Mace (Damage: 5, Unthrowable, Count: %d)", mygame.weapon[myhero.weapon[i]].visiblity);
                     break;
                 case 1:
-                    mvwprintw(stdscr, i, 0, "Dagger");
+                    mvwprintw(stdscr, i, 0, "Dagger (Damage: 12, Range: 5, Count: %d)", mygame.weapon[myhero.weapon[i]].visiblity);
                     break;
                 case 2:
-                    mvwprintw(stdscr, i, 0, "Wand");
+                    mvwprintw(stdscr, i, 0, "Wand (Damage: 15, Range: 10, Count: %d)", mygame.weapon[myhero.weapon[i]].visiblity);
                     break;
                 case 3:
-                    mvwprintw(stdscr, i, 0, "Arrow");
+                    mvwprintw(stdscr, i, 0, "Arrow (Damage: 5, Range: 5, Count: %d)", mygame.weapon[myhero.weapon[i]].visiblity);
                     break;
                 case 4:
-                    mvwprintw(stdscr, i, 0, "Sword");
+                    mvwprintw(stdscr, i, 0, "Sword (Damage: 10, Unthrowable, Count: %d)", mygame.weapon[myhero.weapon[i]].visiblity);
                     break;
             }
 
@@ -780,7 +780,7 @@ int spellDisplayer() {
             }
 
             // Display weapon based on type
-            switch (mygame.weapon[myhero.weapon[i]].type) {
+            switch (mygame.spell[myhero.spell[i]].type) {
                 case 0:
                     mvwprintw(stdscr, i, 0, "Health");
                     break;

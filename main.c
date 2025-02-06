@@ -10,13 +10,17 @@
 #include "main.h"
 #include <locale.h>
 #include <unistd.h>
+#include "enemy.h"
 
 #define MAP_HEIGHT 30
 #define MAP_WIDTH 80
 #define MAX_HEALTH 150
 #define DELAY 10000
+#define ENEMY_TURN 45
 
 int heroColor = 6;
+int inTrap = 1;
+int speed = -1;
 
 hero createHero() {
     hero newHero;
@@ -108,7 +112,7 @@ user_data setupLogin() {
 }
 
 void newGame() {
-    mygame.DifficultyLevel = 0;
+    mygame.DifficultyLevel = 2;
     mygame.heroColor = 3;
     generateSpell();
     generateTrap();
@@ -233,14 +237,9 @@ void rerank() {
     return board;
 }
 
-void weapons() {
+int damages() {
 
 }
-
-void supplements() {
-
-}
-
 
 void options(int choice) {
     loadBoard();
@@ -270,6 +269,7 @@ void options(int choice) {
     }
     case 4: {
         int difficulty = Difficulty();
+        mygame.DifficultyLevel = difficulty;
         break;
     }
 
@@ -283,8 +283,9 @@ void options(int choice) {
 
     case 7: {
         int spell = spellDisplayer();
-        if (spell = -1) break;
+        if (spell == -1) break;
         myhero.currentSpell = spell;
+        if (mygame.spell[myhero.spell[spell]].type == 1) speed = 1;
         break;
     }
 
@@ -357,11 +358,15 @@ int goldDetector() {
 int weaponDetector() {
     for (int i = 0; i < 20; i++) {
         if (mygame.weapon[i].x == myhero.x && mygame.weapon[i].y == myhero.y 
-            && mygame.weapon[i].floor == myhero.floor && mygame.weapon[i].visiblity == -1) {
+            && mygame.weapon[i].floor == myhero.floor && mygame.weapon[i].visiblity < 0) {
             return i;
         }
     }
     return -1;
+}
+
+void hit() {
+    
 }
 
 void renderGame() {
@@ -371,10 +376,14 @@ void renderGame() {
     nodelay(stdscr, TRUE);
 
     int currentFloor = myhero.floor;
-    int displayStatus = -1;
-    int speed = -1;
+    int displayStatus = 1; 
+    int enemyTurn = 0;   
 
     while (1) {
+        followStatus();
+        enemyTurn = (enemyTurn +1) % (ENEMY_TURN/(3 -mygame.DifficultyLevel));
+        if (!enemyTurn) enemyMovement();
+        
         if (displayStatus == 1) displayFloor(currentFloor);
         else onlySomeFeet(5, currentFloor);
         bunny();
@@ -389,6 +398,8 @@ void renderGame() {
         }
         else if (dungeon[myhero.floor][myhero.y][myhero.x] == 'W') {
             strcpy(mygame.messages[++messageIndex], "You won!\n");
+            printf("You won soldier!\n");
+            myhero.user.score += 100;
             break;
         }
 
@@ -404,7 +415,8 @@ void renderGame() {
             else continue;
         }
         index = trapDetector();
-        if (index != -1) {
+        if (index != -1 && inTrap == 1) {
+            inTrap = -1;
             dungeon[myhero.floor][myhero.y][myhero.x] = '^';
             strcpy(mygame.messages[++messageIndex], "You've fallen in a trap!\n");
         }
@@ -414,7 +426,14 @@ void renderGame() {
             if (1) {
                 mygame.food[index].visiblity = 1;
                 dungeon[myhero.floor][myhero.y][myhero.x] = '.';
-                myhero.health += mygame.food[index].type * 10 + 5;
+                int rate = (mygame.food[index].type * 10 + 5);
+                if (myhero.currentSpell != -1 && mygame.spell[myhero.spell[myhero.currentSpell]].type == 0 
+                    && mygame.spell[myhero.spell[myhero.currentSpell]].visiblity != 0) {
+                    rate *= 2;
+                    mygame.spell[myhero.spell[myhero.currentSpell]].visiblity = 0;
+                }
+                myhero.health += rate;
+                if (myhero.health > MAX_HEALTH) myhero.health = MAX_HEALTH;
                 char tempmessage[256];
                 snprintf(tempmessage, sizeof(tempmessage), "You consumed food! Now your health is %d/%d\n", myhero.health, MAX_HEALTH);
                 strcpy(mygame.messages[++messageIndex], tempmessage);
@@ -429,7 +448,9 @@ void renderGame() {
                 dungeon[myhero.floor][myhero.y][myhero.x] = '.';
                 myhero.user.gold += 10 * mygame.gold[index].type + 10;
                 myhero.user.score += 10 * mygame.gold[index].type + 10;
-                strcpy(mygame.messages[++messageIndex], "You've grabbed a gold!\n");
+                char tempmessage[256];
+                snprintf(tempmessage, sizeof(tempmessage), "You've grabbed a gold! (Gold supply: %d)\n", myhero.user.gold);
+                strcpy(mygame.messages[++messageIndex], tempmessage);
                 writeUserInfo(myhero.user);
             }
             else continue;
@@ -438,7 +459,7 @@ void renderGame() {
         if (index != -1) {
             //int c = getch();
             if (1) {
-                mygame.weapon[index].visiblity = 1;
+                mygame.weapon[index].visiblity *= -1;
                 dungeon[myhero.floor][myhero.y][myhero.x] = '.';
                 strcpy(mygame.messages[++messageIndex], "You've grabbed a weapon!\n");
                 myhero.weapon[myhero.weaponIndex++] = index;
@@ -468,7 +489,9 @@ void renderGame() {
             nodelay(stdscr, FALSE);
             displayMessages();
             nodelay(stdscr, TRUE);
-        } else if (ch == 'e') {}
+        } else if (ch == 32) {
+            hit();
+        }
 
         usleep(DELAY);
     }
@@ -487,7 +510,9 @@ void movementHandler(int j, int i) {
     init_pair(6, COLOR_MAGENTA, COLOR_BLACK);
     init_pair(7, COLOR_CYAN, COLOR_BLACK);
 
+    if (inTrap == -1 && (i != 0 || j != 0)) inTrap = 1;
     bunny();
+
     int desx = myhero.x +i;
     int desy = myhero.y +j;
     if (desx < 1 || desy < 1 || desx > MAP_WIDTH || desy > MAP_HEIGHT 
@@ -525,6 +550,12 @@ int main() {
     }
 
     time_t start_time = time(NULL);
+
+    undeedGenerator();
+    demonGenerator();
+    monsterGenerator();
+    snakeGenerator();
+    giantGenerator();
 
     loadBoard();
     newGame();
