@@ -166,6 +166,8 @@ void undeedGenerator()
 void enemyMovement() {
     srand(time(NULL));
     for (int i = 0; i < 10; i++) {
+        if (enemies[i].status == 0) continue;
+
         dungeon[enemies[i].floor][enemies[i].y][enemies[i].x] = '.';
 
         if (enemies[i].status == 1) {
@@ -201,6 +203,8 @@ void enemyMovement() {
 
 void followStatus() {
     for (int i = 0; i < 2; i++) { //for snakes
+        if (enemies[i].status == 0) continue;
+        
         if ((myhero.x -enemies[i].x < 21 && myhero.x -enemies[i].x > -21) 
         || (myhero.y -enemies[i].y < 21 && myhero.y -enemies[i].y > -21)) {
             enemies[i].status = 1;
@@ -210,6 +214,8 @@ void followStatus() {
         }
     }
     for (int i = 2; i < 10; i++) { //for the rest of enemies
+        if (enemies[i].status == 0) continue;
+
         if ((myhero.x -enemies[i].x < 21 && myhero.x -enemies[i].x > -21) 
         || (myhero.y -enemies[i].y < 21 && myhero.y -enemies[i].y > -21)) {
             enemies[i].status = 1;
