@@ -15,8 +15,9 @@
 #define FLOORS 4
 #define MAP_HEIGHT 30
 #define MAP_WIDTH 80
+#define DISTANCE 16
 
-enemy enemies[10];
+enemy enemies[20];
 
 void snakeGenerator()
 {
@@ -68,7 +69,7 @@ void monsterGenerator()
             }
         }
 
-        enemies[i].duration = 45;
+        enemies[i].duration = 10;
         enemies[i].health = 10;
         enemies[i].status = -1;
         enemies[i].symbol = 'F';
@@ -97,7 +98,7 @@ void demonGenerator()
             }
         }
 
-        enemies[i].duration = 45;
+        enemies[i].duration = 10;
         enemies[i].health = 5;
         enemies[i].status = -1;
         enemies[i].symbol = 'd';
@@ -126,7 +127,7 @@ void giantGenerator()
             }
         }
 
-        enemies[i].duration = 90;
+        enemies[i].duration = 20;
         enemies[i].health = 15;
         enemies[i].status = -1;
         enemies[i].symbol = 'G';
@@ -155,7 +156,7 @@ void undeedGenerator()
             }
         }
 
-        enemies[i].duration = 90;
+        enemies[i].duration = 20;
         enemies[i].health = 30;
         enemies[i].status = -1;
         enemies[i].symbol = 'u';
@@ -202,31 +203,40 @@ void enemyMovement() {
 }
 
 void followStatus() {
-    for (int i = 0; i < 2; i++) { //for snakes
+    time_t currentTime = time(NULL); // Call once per function execution
+
+    for (int i = 0; i < 2; i++) { // Snakes
         if (enemies[i].status == 0) continue;
-        
-        if ((myhero.x -enemies[i].x < 21 && myhero.x -enemies[i].x > -21) 
-        || (myhero.y -enemies[i].y < 21 && myhero.y -enemies[i].y > -21)) {
+
+        int dx = myhero.x - enemies[i].x;
+        int dy = myhero.y - enemies[i].y;
+
+        if (abs(dx) < DISTANCE && abs(dy) < DISTANCE) {
             enemies[i].status = 1;
         }
         if (myhero.floor != enemies[i].floor || enemies[i].health < 1) {
             enemies[i].status = -1;
         }
     }
-    for (int i = 2; i < 10; i++) { //for the rest of enemies
+
+    for (int i = 2; i < 10; i++) { // Other enemies
         if (enemies[i].status == 0) continue;
 
-        if ((myhero.x -enemies[i].x < 21 && myhero.x -enemies[i].x > -21) 
-        || (myhero.y -enemies[i].y < 21 && myhero.y -enemies[i].y > -21)) {
+        int dx = myhero.x - enemies[i].x;
+        int dy = myhero.y - enemies[i].y;
+
+        if (abs(dx) < DISTANCE && abs(dy) < DISTANCE) {
             enemies[i].status = 1;
             if (enemies[i].followingSince <= 0) {
-                enemies[i].followingSince = (int)time(NULL);
+                enemies[i].followingSince = (int)currentTime;
             }
         }
-        if ((int)time(NULL) -enemies[i].followingSince > enemies[i].duration
-        || enemies[i].health < 1 || myhero.floor != enemies[i].floor) {
+
+        if ((int)(currentTime - enemies[i].followingSince) > enemies[i].duration
+            || enemies[i].health < 1 || myhero.floor != enemies[i].floor) {
             enemies[i].status = -1;
             enemies[i].followingSince = -1;
         }
     }
 }
+

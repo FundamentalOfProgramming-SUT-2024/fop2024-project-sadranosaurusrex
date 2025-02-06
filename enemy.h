@@ -12,7 +12,7 @@ typedef struct {
     int followingSince;
 } enemy;
 
-extern enemy enemies[10];
+extern enemy enemies[20];
 
 void undeedGenerator();
 void demonGenerator();

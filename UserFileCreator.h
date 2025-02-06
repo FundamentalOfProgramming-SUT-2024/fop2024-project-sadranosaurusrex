@@ -38,7 +38,7 @@ typedef struct {
 typedef struct {
     int DifficultyLevel;
     int heroColor;
-    char messages[256][50];
+    char messages[256][256];
     trap traps[20];
     trap gold[20];
     trap food[20];

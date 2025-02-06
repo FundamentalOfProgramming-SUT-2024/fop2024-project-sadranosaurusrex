@@ -201,6 +201,11 @@ void displayFloor(int floor)
             if (dungeon[floor][y][x] == '.') attroff(COLOR_PAIR(7));
         }
     }
+
+    mvprintw(MAP_HEIGHT, 0, "Health: %d, Score: %d, Gold: %d ,current weapon: %d... ",
+             myhero.health, myhero.user.score, myhero.user.gold, myhero.currentWeapon);
+    if(messageIndex > -1) 
+        printw("%s\n", mygame.messages[messageIndex]);
     refresh();
 }
 
@@ -285,7 +290,9 @@ void generateSpell() {
                 mygame.spell[i].y = randomY;
                 mygame.spell[i].type = randomType;
                 mygame.spell[i].visiblity = -1;
-                dungeon[randomF][randomY][randomX] = 'e';
+                if (randomType == 0) dungeon[randomF][randomY][randomX] = 'H';
+                else if (randomType == 1) dungeon[randomF][randomY][randomX] = 'V';
+                else if (randomType == 2) dungeon[randomF][randomY][randomX] = 'e';
                 break;
             }
         }
@@ -308,7 +315,10 @@ void generateFood() {
                 mygame.food[i].y = randomY;
                 mygame.food[i].visiblity = -1;
                 mygame.food[i].type = randomType;
-                dungeon[randomF][randomY][randomX] = 'f';
+                if (randomType == 0) dungeon[randomF][randomY][randomX] = 'f';
+                else if (randomType == 1) dungeon[randomF][randomY][randomX] = 'F';
+                else if (randomType == 2) dungeon[randomF][randomY][randomX] = 'J';
+                else if (randomType == 3) dungeon[randomF][randomY][randomX] = 'f';
                 break;
             }
         }
@@ -328,7 +338,10 @@ void generateFood() {
                 mygame.food[i].y = randomY;
                 mygame.food[i].type = randomType;
                 mygame.food[i].visiblity = -1;
-                dungeon[randomF][randomY][randomX] = 'f';
+                if (randomType == 0) dungeon[randomF][randomY][randomX] = 'f';
+                else if (randomType == 1) dungeon[randomF][randomY][randomX] = 'F';
+                else if (randomType == 2) dungeon[randomF][randomY][randomX] = 'J';
+                else if (randomType == 3) dungeon[randomF][randomY][randomX] = 'f';
                 break;
             }
         }
@@ -351,7 +364,8 @@ void generateGold() {
                 mygame.gold[i].y = randomY;
                 mygame.gold[i].visiblity = -1;
                 mygame.gold[i].type = randomType;
-                dungeon[randomF][randomY][randomX] = 'g';
+                if (randomType == 0) dungeon[randomF][randomY][randomX] = 'g';
+                else if (randomType == 1) dungeon[randomF][randomY][randomX] = 'B';
                 break;
             }
         }
@@ -371,7 +385,8 @@ void generateGold() {
                 mygame.gold[i].y = randomY;
                 mygame.gold[i].type = randomType;
                 mygame.gold[i].visiblity = -1;
-                dungeon[randomF][randomY][randomX] = 'g';
+                if (randomType == 0) dungeon[randomF][randomY][randomX] = 'g';
+                else if (randomType == 1) dungeon[randomF][randomY][randomX] = 'B';
                 break;
             }
         }

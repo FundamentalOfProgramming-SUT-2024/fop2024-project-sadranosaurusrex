@@ -391,7 +391,7 @@ int settingMenu()
 
     int choice = -1;
     int highlight = 0;
-    const char *options[] = {"Food", "Weapons", "Score Board", "Save", "Difficulty", "Heros", "Hero Colors", "Enchant", "Back"};
+    const char *options[] = {"Food", "Weapons", "Score Board", "Save", "Difficulty", "Heros", "Hero Colors", "Enchant", "Music", "Profile", "Back"};
     int n_options = sizeof(options) / sizeof(options[0]);
 
     while (1)
@@ -730,7 +730,7 @@ int weaponDisplayer() {
             if (i == highlight) {
                 attroff(A_REVERSE);  // Turn off highlight
             }
-            j = i + 1;
+            j = myhero.weaponIndex;
         }
 
         refresh();  // Refresh screen after printing
@@ -748,14 +748,14 @@ int weaponDisplayer() {
                 break;
         }
 
-        if (choice >= 0 && choice < j) {  // Valid choice
+        if (choice >= 0) {  // Valid choice
             endwin();
             return choice;
         }
     }
 
     endwin();  // Close ncurses
-    return 0;
+    return -1;
 }
 
 int spellDisplayer() {
@@ -820,5 +820,60 @@ int spellDisplayer() {
     }
 
     endwin();  // Close ncurses
+    return 0;
+}
+
+char* musicSeting()
+{
+    initscr();
+    keypad(stdscr, TRUE);
+    noecho();
+    cbreak();
+
+    int choice = -1;
+    int highlight = 0;
+    const char *options[] = {"Careless_Whisper", "Flying", "Für_Elise"};
+    int n_options = sizeof(options) / sizeof(options[0]);
+
+    while (1)
+    {
+        clear();
+        for (int i = 0; i < n_options; i++)
+        {
+            if (i == highlight)
+            {
+                attron(A_REVERSE); // Highlight the current option
+            }
+            mvprintw(i, 0, "%s", options[i]); // Print option
+
+            if (i == highlight)
+            {
+                attroff(A_REVERSE); // Turn off highlight
+            }
+        }
+
+        int key = getch();
+        switch (key)
+        {
+        case KEY_UP:
+            highlight = (highlight - 1 + n_options) % n_options; // Move up
+            break;
+        case KEY_DOWN:
+            highlight = (highlight + 1) % n_options; // Move down
+            break;
+        case 10: // Enter key
+            choice = highlight;
+            printw("Chose\n");
+            getchar();
+            break;
+        }
+
+        if (choice < n_options && choice > -1)
+        { // Exit option
+            return options[choice];
+        }
+    }
+
+    endwin();
     return 0;
 }

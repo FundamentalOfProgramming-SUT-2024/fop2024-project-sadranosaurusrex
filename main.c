@@ -22,6 +22,7 @@ int heroColor = 6;
 int inTrap = 1;
 int speed = -1;
 int damageBoost = 1;
+int win = 0;
 
 hero createHero()
 {
@@ -124,6 +125,47 @@ user_data setupLogin()
     return newuser;
 }
 
+void playMusic(char *musicName)
+{
+    char tempMessage[128];
+    snprintf(tempMessage, sizeof(tempMessage), "mpg123 --no-control -q %s.mp3 &", musicName);
+    system(tempMessage);
+}
+
+void killMusic()
+{
+    system("pkill mpg123");
+}
+
+void displayFile(const char *filename)
+{
+    FILE *file = fopen(filename, "r");
+    if (!file)
+    {
+        perror("Error opening file");
+        return;
+    }
+
+    initscr();
+    noecho();
+    curs_set(FALSE);
+    clear();
+
+    char line[256];
+    int row = 0;
+
+    while (fgets(line, sizeof(line), file) && row < LINES - 1)
+    {
+        mvprintw(row++, 0, "%s", line); // Print each line at a new row
+    }
+
+    fclose(file);
+    refresh();
+
+    getch(); // Wait for user input before exiting
+    endwin();
+}
+
 void newGame()
 {
     mygame.DifficultyLevel = 2;
@@ -162,6 +204,9 @@ void onlySomeFeet(int feet, int floor)
         }
     }
     movementHandler(0, 0);
+    mvprintw(MAP_HEIGHT, 0, "Health: %d, Score: %d, Gold: %d ... ", myhero.health, myhero.user.score, myhero.user.gold);
+    if (messageIndex > -1)
+        printw("%s\n", mygame.messages[messageIndex]);
 }
 
 int U()
@@ -301,8 +346,9 @@ int rangeClaculator(int weaponType)
 
 void hitDamage(int i, int j, int k, int damage)
 {
-    if (enemies[k].x == i && enemies[k].y == j && enemies[k].status != 0) {
-        enemies[k].health -= damage; 
+    if (enemies[k].x == i && enemies[k].y == j && enemies[k].status != 0)
+    {
+        enemies[k].health -= damage;
     }
     if (enemies[k].status != 0 && enemies[k].health <= 0)
     {
@@ -315,160 +361,129 @@ void hitDamage(int i, int j, int k, int damage)
     }
 }
 
-void hit()
-{
+void hit() {
     int type;
     if (myhero.currentWeapon == -1)
         type = 0;
-    else
+    else {
         type = mygame.weapon[myhero.weapon[myhero.currentWeapon]].type;
+        if (mygame.weapon[myhero.weapon[myhero.currentWeapon]].visiblity < 1)
+            return;
+    }
+
     int damage = damages(type) * damageBoost;
     damageBoost = 1;
 
-    if (type == 0 || type == 4)
-    {
-        for (int i = myhero.x - 1; i < myhero.x + 2; i++)
-        {   
-            for (int j = myhero.y - 1; j < myhero.y + 2; j++)
-            {
-                if (i < 0 || j < 0)
-                    continue;
-                for (int k = 0; k < 10; k++)
-                {   
+    if (type == 0 || type == 4) {
+        for (int i = myhero.x - 1; i < myhero.x + 2; i++) {
+            for (int j = myhero.y - 1; j < myhero.y + 2; j++) {
+                if (i < 0 || j < 0) continue;
+                for (int k = 0; k < 10; k++) {
                     hitDamage(i, j, k, damage);
                 }
             }
         }
-    }
+    } else {
+        char symbol;
+        if (type == 1)
+            symbol = 'k';
+        else if (type == 2)
+            symbol = 'w';
+        else if (type == 3)
+            symbol = 'A';
 
-    else
-    {
+        mygame.weapon[myhero.weapon[myhero.currentWeapon]].visiblity--;
+
         int c = getch();
-        // while (getch())
-        // {   
-            int exitloop = 0;
-            if (c == 'y' || c == '7')
-            {
-                for (int i = myhero.x; i >= myhero.x -rangeClaculator(type); i--)
-                {
-                    for (int j = myhero.y; j >= myhero.y -rangeClaculator(type); j--)
-                    {   
-                        if (dungeon[myhero.floor][j][i] == '_' || dungeon[myhero.floor][j][i] == '|' 
-                        || i < 0 || j < 0) {
-                            exitloop = 1;
-                            break;
-                        }
-                        for (int k = 0; k < 10; k++) hitDamage(i, j, k, damage);
-                    }
-                    if (exitloop) break;
+        int exitloop = 0;
+        int range = rangeClaculator(type);
+
+        if (c == 'j' || c == '8') {  // Up attack
+            for (int j = myhero.y; j >= myhero.y - range; j--) {
+                if (dungeon[myhero.floor][j][myhero.x] == '_' || dungeon[myhero.floor][j][myhero.x] == '|') {
+                    exitloop = 1;
+                    break;
                 }
+
+                char original = dungeon[myhero.floor][j][myhero.x];  // Store original tile
+                mvprintw(j, myhero.x, "%c", symbol);
+                refresh();
+                usleep(DELAY * 10);
+                
+                mvprintw(j, myhero.x, "%c", original);  // Restore original tile
+                refresh();
             }
-            if (c == 'u' || c == '9')
-            {
-                for (int i = myhero.x; i <= myhero.x +rangeClaculator(type); i++)
-                {
-                    for (int j = myhero.y; j >= myhero.y -rangeClaculator(type); j--)
-                    {   
-                        if (dungeon[myhero.floor][j][i] == '_' || dungeon[myhero.floor][j][i] == '|') {
-                            exitloop = 1;
-                            break;
-                        }
-                        for (int k = 0; k < 10; k++) hitDamage(i, j, k, damage);
-                    }
-                    if (exitloop) break;
+        } else if (c == 'k' || c == '2') {  // Down attack
+            for (int j = myhero.y; j <= myhero.y + range; j++) {
+                if (dungeon[myhero.floor][j][myhero.x] == '_' || dungeon[myhero.floor][j][myhero.x] == '|') {
+                    exitloop = 1;
+                    break;
                 }
+
+                char original = dungeon[myhero.floor][j][myhero.x];
+                mvprintw(j, myhero.x, "%c", symbol);
+                refresh();
+                usleep(DELAY * 10);
+
+                mvprintw(j, myhero.x, "%c", original);
+                refresh();
             }
-            if (c == 'h' || c == '4')
-            {
-                for (int i = myhero.x; i >= myhero.x -rangeClaculator(type); i--)
-                {
-                    for (int j = myhero.y; j == myhero.y; j++)
-                    {   
-                        if (dungeon[myhero.floor][j][i] == '_' || dungeon[myhero.floor][j][i] == '|') {
-                            exitloop = 1;
-                            break;
-                        }
-                        for (int k = 0; k < 10; k++) hitDamage(i, j, k, damage);
-                    }
-                    if (exitloop) break;
+        } else if (c == 'h' || c == '4') {  // Left attack
+            for (int i = myhero.x; i >= myhero.x - range; i--) {
+                if (dungeon[myhero.floor][myhero.y][i] == '_' || dungeon[myhero.floor][myhero.y][i] == '|') {
+                    exitloop = 1;
+                    break;
                 }
+
+                char original = dungeon[myhero.floor][myhero.y][i];
+                mvprintw(myhero.y, i, "%c", symbol);
+                refresh();
+                usleep(DELAY * 10);
+
+                mvprintw(myhero.y, i, "%c", original);
+                refresh();
             }
-            if (c == 'k' || c == '2')
-            {
-                for (int i = myhero.x; i == myhero.x; i--)
-                {
-                    for (int j = myhero.y; j <= myhero.y +rangeClaculator(type); j++)
-                    {   
-                        if (dungeon[myhero.floor][j][i] == '_' || dungeon[myhero.floor][j][i] == '|') {
-                            exitloop = 1;
-                            break;
-                        }
-                        for (int k = 0; k < 10; k++) hitDamage(i, j, k, damage);
-                    }
-                    if (exitloop) break;
+        } else if (c == 'l' || c == '6') {  // Right attack
+            for (int i = myhero.x; i <= myhero.x + range; i++) {
+                if (dungeon[myhero.floor][myhero.y][i] == '_' || dungeon[myhero.floor][myhero.y][i] == '|') {
+                    exitloop = 1;
+                    break;
                 }
+
+                char original = dungeon[myhero.floor][myhero.y][i];
+                mvprintw(myhero.y, i, "%c", symbol);
+                refresh();
+                usleep(DELAY * 10);
+
+                mvprintw(myhero.y, i, "%c", original);
+                refresh();
             }
-            if (c == 'j' || c == '8')
-            {
-                for (int i = myhero.x; i == myhero.x; i--)
-                {
-                    for (int j = myhero.y; j >= myhero.y -rangeClaculator(type); j--)
-                    {   
-                        if (dungeon[myhero.floor][j][i] == '_' || dungeon[myhero.floor][j][i] == '|') {
-                            exitloop = 1;
-                            break;
-                        }
-                        for (int k = 0; k < 10; k++) hitDamage(i, j, k, damage);
-                    }
-                    if (exitloop) break;
-                }
-            }
-            if (c == 'l' || c == '6')
-            {
-                for (int i = myhero.x; i <= myhero.x +rangeClaculator(type); i++)
-                {
-                    for (int j = myhero.y; j >= myhero.y; j--)
-                    {   
-                        if (dungeon[myhero.floor][j][i] == '_' || dungeon[myhero.floor][j][i] == '|') {
-                            exitloop = 1;
-                            break;
-                        }
-                        for (int k = 0; k < 10; k++) hitDamage(i, j, k, damage);
-                    }
-                    if (exitloop) break;
-                }
-            }
-            if (c == 'b' || c == '1')
-            {
-                for (int i = myhero.x; i >= myhero.x -rangeClaculator(type); i--)
-                {
-                    for (int j = myhero.y; j <= myhero.y + rangeClaculator(type); j++)
-                    {   
-                        if (dungeon[myhero.floor][j][i] == '_' || dungeon[myhero.floor][j][i] == '|') {
-                            exitloop = 1;
-                            break;
-                        }
-                        for (int k = 0; k < 10; k++) hitDamage(i, j, k, damage);
-                    }
-                    if (exitloop) break;
-                }
-            }
-            if (c == 'n' || c == '3')
-            {
-                for (int i = myhero.x; i <= myhero.x +rangeClaculator(type); i++)
-                {
-                    for (int j = myhero.y; j <= myhero.y + rangeClaculator(type); j++)
-                    {   
-                        if (dungeon[myhero.floor][j][i] == '_' || dungeon[myhero.floor][j][i] == '|') {
-                            exitloop = 1;
-                            break;
-                        }
-                        for (int k = 0; k < 10; k++) hitDamage(i, j, k, damage);
-                    }
-                    if (exitloop) break;
-                }
-            }
-        // }
+        }
+
+        else mygame.weapon[myhero.weapon[myhero.currentWeapon]].visiblity++;
+    }
+}
+
+void enemyHit()
+{
+    for (int i = 0; i < 10; i++)
+    {
+        if (myhero.floor == enemies[i].floor && myhero.x == enemies[i].x && myhero.y == enemies[i].y && enemies[i].status != 0)
+        {
+            myhero.health -= 10;
+            if (enemies[i].symbol == 'u')
+                myhero.health -= 15;
+
+            // usleep(DELAY);
+            char tempMessage[256];
+            snprintf(tempMessage, sizeof(tempMessage),
+                     "You were hit by an enemie! (Current health: %d/%d)\n\0", myhero.health, MAX_HEALTH);
+            strcpy(mygame.messages[++messageIndex], tempMessage);
+            // mygame.messages[messageIndex -1][strlen("You were hit by an enemie! (Current health: 100/100)\n\0")] = '\0';
+            // usleep(DELAY);
+            tempMessage[0] = '\0';
+            break;
+        }
     }
 }
 
@@ -483,8 +498,6 @@ void options(int choice)
     case 1:
     {
         int weapon = weaponDisplayer();
-        if (weapon = -1)
-            break;
         myhero.currentWeapon = weapon;
         break;
     }
@@ -528,6 +541,18 @@ void options(int choice)
         else if (mygame.spell[myhero.spell[spell]].type == 2)
             damageBoost = 10;
         break;
+    }
+
+    case 8:
+        killMusic();
+        playMusic(musicSeting());
+
+    case 9:
+    {
+        char filename[256];
+        sprintf(filename, "%s.txt", myhero.user.username);
+
+        displayFile(filename);
     }
 
     default:
@@ -628,7 +653,7 @@ void renderGame()
     nodelay(stdscr, TRUE);
 
     int currentFloor = myhero.floor;
-    int displayStatus = 1;
+    int displayStatus = -1;
     int enemyTurn = 0;
 
     while (1)
@@ -636,7 +661,16 @@ void renderGame()
         followStatus();
         enemyTurn = (enemyTurn + 1) % (ENEMY_TURN / (3 - mygame.DifficultyLevel));
         if (!enemyTurn)
+        {
             enemyMovement();
+            enemyHit();
+        }
+        if (myhero.health <= 0)
+        {
+            myhero.user.score -= 50;
+            win = -1;
+            break;
+        }
 
         if (displayStatus == 1)
             displayFloor(currentFloor);
@@ -661,6 +695,7 @@ void renderGame()
             strcpy(mygame.messages[++messageIndex], "You won!\n");
             printf("You won soldier!\n");
             myhero.user.score += 100;
+            win = 1;
             break;
         }
 
@@ -746,37 +781,39 @@ void renderGame()
         int ch = getch();
         if (ch == 'v')
             speed *= -1;
-        else if (ch == 'y' && speed == 1)
+        else if ((ch == 'y' || ch == '7') && speed == 1)
             movementHandler(-2, -2);
-        else if (ch == 'y')
+        else if ((ch == 'y' || ch == '7'))
             movementHandler(-1, -1);
-        else if (ch == 'u' && speed == 1)
+        else if ((ch == 'u' || ch == '9') && speed == 1)
             movementHandler(-2, 2);
-        else if (ch == 'u')
+        else if ((ch == 'u' || ch == '9'))
             movementHandler(-1, 1);
-        else if (ch == 'h' && speed == 1)
+        else if ((ch == 'h' || ch == '4') && speed == 1)
             movementHandler(0, -2);
-        else if (ch == 'h')
+        else if ((ch == 'h' || ch == '4'))
             movementHandler(0, -1);
-        else if (ch == 'j' && speed == 1)
+        else if ((ch == 'j' || ch == '8') && speed == 1)
             movementHandler(-2, 0);
-        else if (ch == 'j')
+        else if ((ch == 'j' || ch == '8'))
             movementHandler(-1, 0);
-        else if (ch == 'k' && speed == 1)
+        else if ((ch == 'k' || ch == '2') && speed == 1)
             movementHandler(2, 0);
-        else if (ch == 'k')
+        else if (ch == 'k' || ch == '2')
             movementHandler(1, 0);
-        else if (ch == 'l' && speed == 1)
+        else if ((ch == 'l' || ch == '6') && speed == 1)
             movementHandler(0, 2);
-        else if (ch == 'l')
+        else if (ch == 'l' || ch == '6')
             movementHandler(0, 1);
-        else if (ch == 'b' && speed == 1)
+        else if ((ch == 'b' || ch == '1') && speed == 1)
             movementHandler(2, -2);
-        else if (ch == 'b')
+        else if (ch == 'b' || ch == '1')
             movementHandler(1, -1);
-        else if (ch == 'n' && speed == 1)
+        else if ((ch == 'b' || ch == '1') && speed == 1)
+            movementHandler(2, -2);
+        else if ((ch == 'n' || ch == '3') && speed == 1)
             movementHandler(2, 2);
-        else if (ch == 'n')
+        else if (ch == 'n' || ch == '3')
             movementHandler(1, 1);
         else if (ch == 'q')
             break;
@@ -798,10 +835,10 @@ void renderGame()
             displayMessages();
             nodelay(stdscr, TRUE);
         }
-        else if (ch == ' ')
+        else if (ch == 'e' || ch == ' ')
         {
             nodelay(stdscr, FALSE);
-            //printf("hit\n");
+            // printf("hit\n");
             hit();
             nodelay(stdscr, TRUE);
         }
@@ -846,6 +883,7 @@ void movementHandler(int j, int i)
 
 int main()
 {
+    playMusic("Careless_Whisper");
     setlocale(LC_ALL, "");
     start_color();
 
@@ -862,6 +900,7 @@ int main()
     if (myhero.user.logStatus == -1)
     {
         endwin();
+        killMusic();
         return 0;
     }
 
@@ -879,6 +918,7 @@ int main()
 
     time_t end_time = time(NULL);
 
+    killMusic();
     rerank();
     boardSaver();
     myhero.user.logStatus = -1;
@@ -886,7 +926,17 @@ int main()
     myhero.user.experience += (int)difftime(end_time, start_time);
     writeUserInfo(myhero.user);
     saveDungeon(myhero.user.username);
+    endwin();
+    endwin();
 
+    if (win == 1)
+    {
+        printf("You win soldier!\n");
+    }
+    else if (win == -1)
+    {
+        printf("You lose soldier!\n");
+    }
     printf("Press Enter to exit. \n");
     getchar();
     return 0;

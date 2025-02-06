@@ -11,6 +11,7 @@ int Difficulty();
 void screen_setup();
 int weaponDisplayer();
 int spellDisplayer();
+char* musicSeting();
 
 extern char usernameext[50];
 extern char passwordext[50];
